@@ -1,3 +1,31 @@
+// ==========================================
+// 1. 데이터 창고 (이 부분만 수정하면 됩니다!)
+// ==========================================
+const stockData = {
+  "삼성전자": {
+    time: "30초",
+    title: "삼성전자 오늘 신났네 ㅎㅎ",
+    time1: "08:00", text1: "프리마켓 +1.5% 상승 출발",
+    time2: "09:15", text2: "거래대금 4.2배 폭발",
+    currentPrice: "259,500원", change: "+3.2%",
+    news1: "📰 HBM 공급 확대 뉴스",
+    news2: "📌 외국인 100만 주 순매수"
+  },
+  "SK하이닉스": {
+    time: "20초",
+    title: "엔비디아 실적 발표 대기 중!",
+    time1: "08:30", text1: "장전 동시호가 강세",
+    time2: "09:00", text2: "외국인 매수세 유입",
+    currentPrice: "205,000원", change: "+2.1%",
+    news1: "📰 AI 반도체 수요 급증 뉴스",
+    news2: "📌 기관 집중 매수"
+  }
+};
+
+// ==========================================
+// 2. 화면 및 기능 코드 (여기부터는 건드리지 않아도 됩니다)
+// ==========================================
+
 /* ============ 테마 ============ */
 const themeToggle = document.getElementById('themeToggle');
 const themeKnob = document.getElementById('themeKnob');
@@ -248,120 +276,18 @@ function showToast(msg) {
   toast._t = setTimeout(() => { toast.style.opacity = '0'; }, 1500);
 }
 
+// ==== 데이터 창고와 연동되도록 수정된 부분 ====
 function getDemoResponse(userText) {
   const t = userText.toLowerCase();
 
-  if (t.includes('삼성') || t.includes('삼전') || t.includes('왜')) {
-    return `
-      <div class="section" id="section-why">
-        <div class="section-header">
-          <div class="section-title">왜 빨간불일까? <span class="section-time">· 30초</span></div>
-        </div>
-
-        <div class="cal-note">
-                    삼성전자 오늘 신났네 ㅎㅎ<br>
-        </div>
-
-        <div class="report-line"><span class="report-time">08:00</span><span class="report-text">프리마켓 +1.5 상승 출발</span></div>
-        <div class="report-line"><span class="report-time">09:00</span><span class="report-text">프리마켓 20선 돌파</span></div>
-        <div class="report-line"><span class="report-time">09:15</span><span class="report-text">거래대금 <strong>4.2배</strong> 폭발</span></div>
-        <div class="report-line"><span class="report-time">09:20</span><span class="report-text">전고점 뚫어버림</span></div>
-        <div class="report-line"><span class="report-time">09:25</span><span class="report-text">거래량 300% 붙음</span></div>
-
-        <div class="report-current">
-          <span class="report-current-label">현재가</span>
-          <span class="report-current-value">259,500원 <span class="up-color">+3.2%</span></span>
-        </div>
-
-        <div class="report-sources">
-          <div class="report-sources-item">📰 HBM 공급 확대 뉴스 · 한국경제</div>
-          <div class="report-sources-item">📌 삼성전자 공시 · DART</div><br>
-          <div class="report-sources-item">#삼성전자 #-4.24% #숨고르기 #원칙매매</div>
-        </div>
-
-        ${sectionFooter('section-why')}
-      </div>
-
-      <div class="section" id="section-big">
-        <div class="section-header">
-          <div class="section-title">큰손들은 뭐하고 있어? <span class="section-time">· 20초</span></div>
-        </div>
-
-        <div class="stock-name-sub">삼성전자</div>
-
-        <div class="bar-chart">
-          <div class="bar-row">
-            <div class="bar-label">외국인</div>
-            <div class="bar-track"><div class="bar-zero"></div><div class="bar-fill-right" style="width:40%;"></div></div>
-            <div class="bar-value buy">+48만</div>
-          </div>
-          <div class="bar-row">
-            <div class="bar-label">기관</div>
-            <div class="bar-track"><div class="bar-zero"></div><div class="bar-fill-right" style="width:18%;"></div></div>
-            <div class="bar-value buy">+21만</div>
-          </div>
-          <div class="bar-row">
-            <div class="bar-label">개인</div>
-            <div class="bar-track"><div class="bar-zero"></div><div class="bar-fill-left" style="width:58%;"></div></div>
-            <div class="bar-value sell">-69만</div>
-          </div>
-        </div>
-
-        <div class="cal-note">
-                    외놈들이랑 기관 아찌들은 쌍끌이로 담고 있어.<br>
-          우리 개미는 반대로 팔고 있고 ㅠㅠ
-        </div>
-
-        <div class="related-stocks">
-          <div class="related-stocks-title">같이 움직인 종목</div>
-          <div class="related-stock-row"><span class="related-stock-name">SK하이닉스</span><span class="related-stock-change up-color">+2.1%</span></div>
-          <div class="related-stock-row"><span class="related-stock-name">한미반도체</span><span class="related-stock-change up-color">+1.8%</span></div>
-        </div>
-
-        ${sectionFooter('section-big')}
-      </div>
-
-      <div class="section" id="section-cal">
-        <div class="section-header">
-          <div class="section-title">📅 다가오는 일정 <span class="section-time">· 15초</span></div>
-        </div>
-
-        <div class="calendar-list">
-          <div class="cal-row"><span class="cal-date">🌙 오늘 밤</span><span class="cal-event">조용함</span></div>
-          <div class="cal-row"><span class="cal-date">🔥 09/17(목)</span><span class="cal-event">미국 FOMC 기준금리 결정 <span class="cal-time">03:00</span></span></div>
-          <div class="cal-row"><span class="cal-date">📌 09/25(금)</span><span class="cal-event">미국 PCE 물가지수 <span class="cal-time">21:30</span></span></div>
-        </div>
-
-        <div class="cal-note">
-          지표 발표 전후로는 호가창 얇아짐.<br>
-          뇌동매매 금지!
-        </div>
-
-        ${sectionFooter('section-cal')}
-      </div>
-
-      <div class="section" id="section-vol">
-        <div class="section-header">
-          <div class="section-title">거래대금 폭발 <span class="section-time">· 10초</span></div>
-        </div>
-        <div class="report-line"><span class="report-time">1</span><span class="report-text"><strong>삼성전자</strong> · 4.2배</span></div>
-        <div class="report-line"><span class="report-time">2</span><span class="report-text"><strong>SK하이닉스</strong> · 3.1배</span></div>
-        <div class="report-line"><span class="report-time">3</span><span class="report-text"><strong>우리로</strong> · 2.8배</span></div>
-
-        ${sectionFooter('section-vol')}
-      </div>
-    `;
-  }
-
+  // 기존 데모 기능 유지 (큰손, 일정, 거래대금 검색)
   if (t.includes('큰손')) {
     return `
       <div class="section" id="section-big">
         <div class="section-header">
           <div class="section-title">큰손들은 뭐하고 있어? <span class="section-time">· 20초</span></div>
         </div>
-
         <div class="stock-name-sub">삼성전자</div>
-
         <div class="bar-chart">
           <div class="bar-row">
             <div class="bar-label">외국인</div>
@@ -379,68 +305,74 @@ function getDemoResponse(userText) {
             <div class="bar-value sell">-69만</div>
           </div>
         </div>
-
-        <div class="cal-note">
-          외놈들이랑 기관 아찌들은 쌍끌이로 담고 있어.<br>
-          우리 개미는 반대로 팔고 있고
-        </div>
-
-        <div class="related-stocks">
-          <div class="related-stocks-title">같이 움직인 종목</div>
-          <div class="related-stock-row"><span class="related-stock-name">SK하이닉스</span><span class="related-stock-change up-color">+2.1%</span></div>
-          <div class="related-stock-row"><span class="related-stock-name">한미반도체</span><span class="related-stock-change up-color">+1.8%</span></div>
-        </div>
-
+        <div class="cal-note">외놈들이랑 기관 아찌들은 쌍끌이로 담고 있어.<br>우리 개미는 반대로 팔고 있고</div>
         ${sectionFooter('section-big')}
       </div>
     `;
   }
-
-  if (t.includes('일정') || t.includes('캘린더') || t.includes('fomc')) {
+  if (t.includes('일정') || t.includes('캘린더')) {
     return `
       <div class="section" id="section-cal">
         <div class="section-header">
           <div class="section-title">📅 다가오는 일정 <span class="section-time">· 15초</span></div>
         </div>
-
         <div class="calendar-list">
-          <div class="cal-row"><span class="cal-date">🌙 오늘 밤</span><span class="cal-event">조용함</span></div>
           <div class="cal-row"><span class="cal-date">🔥 09/17(목)</span><span class="cal-event">미국 FOMC 기준금리 결정 <span class="cal-time">03:00</span></span></div>
-          <div class="cal-row"><span class="cal-date">📌 09/25(금)</span><span class="cal-event">미국 PCE 물가지수 <span class="cal-time">21:30</span></span></div>
         </div>
-
-        <div class="cal-note">
-          지표 발표 전후로는 호가창 얇아짐.<br>
-          뇌동매매 금지!
-        </div>
-
         ${sectionFooter('section-cal')}
       </div>
     `;
   }
-
   if (t.includes('거래대금')) {
     return `
       <div class="section" id="section-vol">
-        <div class="section-header">
-          <div class="section-title">거래대금 폭발 <span class="section-time">· 10초</span></div>
-        </div>
+        <div class="section-header"><div class="section-title">거래대금 폭발</div></div>
         <div class="report-line"><span class="report-time">1</span><span class="report-text"><strong>삼성전자</strong> · 4.2배</span></div>
-        <div class="report-line"><span class="report-time">2</span><span class="report-text"><strong>SK하이닉스</strong> · 3.1배</span></div>
-        <div class="report-line"><span class="report-time">3</span><span class="report-text"><strong>우리로</strong> · 2.8배</span></div>
-
         ${sectionFooter('section-vol')}
       </div>
     `;
   }
 
+  // 사용자가 입력한 종목(삼성전자, SK하이닉스) 판별
+  let stockName = "";
+  if (t.includes('삼성') || t.includes('삼전')) stockName = "삼성전자";
+  else if (t.includes('하이닉스')) stockName = "SK하이닉스";
+
+  // 데이터 창고에서 종목 데이터 꺼내오기
+  const data = stockData[stockName];
+
+  // 창고에 종목 데이터가 있다면, 껍데기에 입혀서 보여주기
+  if (data) {
+    return `
+      <div class="section" id="section-why">
+        <div class="section-header">
+          <div class="section-title">${stockName} 왜 빨간불일까? <span class="section-time">· ${data.time}</span></div>
+        </div>
+        <div class="cal-note">${data.title}<br></div>
+        <div class="report-line"><span class="report-time">${data.time1}</span><span class="report-text">${data.text1}</span></div>
+        <div class="report-line"><span class="report-time">${data.time2}</span><span class="report-text">${data.text2}</span></div>
+        
+        <div class="report-current">
+          <span class="report-current-label">현재가</span>
+          <span class="report-current-value">${data.currentPrice} <span class="up-color">${data.change}</span></span>
+        </div>
+
+        <div class="report-sources">
+          <div class="report-sources-item">${data.news1}</div>
+          <div class="report-sources-item">${data.news2}</div>
+        </div>
+        ${sectionFooter('section-why')}
+      </div>
+    `;
+  }
+
+  // 창고에 없는 내용물을 검색했을 때 나오는 화면
   return `
     <div class="section" id="section-default">
       <div class="section-header">
         <div class="section-title">${userText}</div>
       </div>
-      <div class="report-note">데모 응답입니다. 종목명을 입력해보세요.</div>
-
+      <div class="report-note">아직 데이터 창고에 없는 종목입니다. '삼성전자' 또는 'SK하이닉스'를 검색해보세요!</div>
       ${sectionFooter('section-default')}
     </div>
   `;
@@ -466,7 +398,6 @@ function voteWidget() {
           <button class="vote-btn down" onclick="castVote('down')">하락 전망</button>
         </div>
       </div>
-
       ${sectionFooter('section-vote')}
     </div>
   `;
