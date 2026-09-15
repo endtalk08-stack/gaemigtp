@@ -1,26 +1,72 @@
 // ==========================================
-// 1. 데이터 창고 (이 부분만 수정하면 됩니다!)
+// 1. 데이터 창고 (이제 모든 내용을 여기서 바꿀 수 있습니다!)
 // ==========================================
 const stockData = {
   "삼성전자": {
-    time: "30초",
-    title: "삼성전자 오늘 신났네 ㅎㅎ",
-    time1: "08:00", text1: "프리마켓 +1.5% 상승 출발",
-    time2: "09:15", text2: "거래대금 4.2배 폭발",
+    // [1] 왜 빨간불일까?
+    why_time: "30초",
+    why_title: "삼성전자 오늘 신났네 ㅎㅎ",
+    why_time1: "08:00", why_text1: "프리마켓 +1.5% 상승 출발",
+    why_time2: "09:15", why_text2: "거래대금 4.2배 폭발",
     currentPrice: "259,500원", change: "+3.2%",
     news1: "📰 HBM 공급 확대 뉴스",
-    news2: "📌 외국인 100만 주 순매수"
+    news2: "📌 외국인 100만 주 순매수",
+
+    // [2] 큰손들은 뭐하고 있어?
+    big_foreign_pct: "40%", big_foreign_val: "+48만",
+    big_inst_pct: "18%", big_inst_val: "+21만",
+    big_retail_pct: "58%", big_retail_val: "-69만",
+    big_memo: "외놈들이랑 기관 아찌들은 쌍끌이로 담고 있어.<br>우리 개미는 반대로 팔고 있고 ㅠㅠ",
+    related1_name: "SK하이닉스", related1_change: "+2.1%",
+    related2_name: "한미반도체", related2_change: "+1.8%",
+
+    // [3] 다가오는 일정
+    cal_date1: "🌙 오늘 밤", cal_event1: "조용함",
+    cal_date2: "🔥 09/17(목)", cal_event2: "미국 FOMC 기준금리 결정 (03:00)",
+    cal_memo: "지표 발표 전후로는 호가창 얇아짐.<br>뇌동매매 금지!",
+
+    // [4] 거래대금 폭발
+    vol_rank1: "삼성전자 · 4.2배",
+    vol_rank2: "SK하이닉스 · 3.1배",
+    vol_rank3: "우리로 · 2.8배",
+
+    // [5] 내일 어디로 튈까? (투표)
+    vote_up: "68%", vote_down: "32%"
   },
+  
   "SK하이닉스": {
-    time: "20초",
-    title: "엔비디아 실적 발표 대기 중!",
-    time1: "08:30", text1: "장전 동시호가 강세",
-    time2: "09:00", text2: "외국인 매수세 유입",
+    // [1] 왜 빨간불일까?
+    why_time: "20초",
+    why_title: "엔비디아 실적 발표 대기 중!",
+    why_time1: "08:30", why_text1: "장전 동시호가 강세",
+    why_time2: "09:00", why_text2: "외국인 매수세 유입",
     currentPrice: "205,000원", change: "+2.1%",
     news1: "📰 AI 반도체 수요 급증 뉴스",
-    news2: "📌 기관 집중 매수"
+    news2: "📌 기관 집중 매수",
+
+    // [2] 큰손들은 뭐하고 있어?
+    big_foreign_pct: "55%", big_foreign_val: "+72만",
+    big_inst_pct: "25%", big_inst_val: "+31만",
+    big_retail_pct: "20%", big_retail_val: "-15만",
+    big_memo: "외국인이 쓸어 담고 있네!<br>실적 기대감이 엄청난 듯.",
+    related1_name: "한미반도체", related1_change: "+4.5%",
+    related2_name: "이수페타시스", related2_change: "+3.2%",
+
+    // [3] 다가오는 일정
+    cal_date1: "🔥 내일 새벽", cal_event1: "엔비디아 2분기 실적 발표",
+    cal_date2: "📌 09/25(금)", cal_event2: "미국 마이크론 실적 발표",
+    cal_memo: "엔비디아 실적에 따라 내일 갭상승/하락 결정됨!",
+
+    // [4] 거래대금 폭발
+    vol_rank1: "SK하이닉스 · 5.5배",
+    vol_rank2: "한미반도체 · 4.1배",
+    vol_rank3: "삼성전자 · 2.2배",
+
+    // [5] 내일 어디로 튈까? (투표)
+    vote_up: "85%", vote_down: "15%"
   }
 };
+
 
 // ==========================================
 // 2. 화면 및 기능 코드 (여기부터는 건드리지 않아도 됩니다)
@@ -280,60 +326,7 @@ function showToast(msg) {
 function getDemoResponse(userText) {
   const t = userText.toLowerCase();
 
-  // 기존 데모 기능 유지 (큰손, 일정, 거래대금 검색)
-  if (t.includes('큰손')) {
-    return `
-      <div class="section" id="section-big">
-        <div class="section-header">
-          <div class="section-title">큰손들은 뭐하고 있어? <span class="section-time">· 20초</span></div>
-        </div>
-        <div class="stock-name-sub">삼성전자</div>
-        <div class="bar-chart">
-          <div class="bar-row">
-            <div class="bar-label">외국인</div>
-            <div class="bar-track"><div class="bar-zero"></div><div class="bar-fill-right" style="width:40%;"></div></div>
-            <div class="bar-value buy">+48만</div>
-          </div>
-          <div class="bar-row">
-            <div class="bar-label">기관</div>
-            <div class="bar-track"><div class="bar-zero"></div><div class="bar-fill-right" style="width:18%;"></div></div>
-            <div class="bar-value buy">+21만</div>
-          </div>
-          <div class="bar-row">
-            <div class="bar-label">개인</div>
-            <div class="bar-track"><div class="bar-zero"></div><div class="bar-fill-left" style="width:58%;"></div></div>
-            <div class="bar-value sell">-69만</div>
-          </div>
-        </div>
-        <div class="cal-note">외놈들이랑 기관 아찌들은 쌍끌이로 담고 있어.<br>우리 개미는 반대로 팔고 있고</div>
-        ${sectionFooter('section-big')}
-      </div>
-    `;
-  }
-  if (t.includes('일정') || t.includes('캘린더')) {
-    return `
-      <div class="section" id="section-cal">
-        <div class="section-header">
-          <div class="section-title">📅 다가오는 일정 <span class="section-time">· 15초</span></div>
-        </div>
-        <div class="calendar-list">
-          <div class="cal-row"><span class="cal-date">🔥 09/17(목)</span><span class="cal-event">미국 FOMC 기준금리 결정 <span class="cal-time">03:00</span></span></div>
-        </div>
-        ${sectionFooter('section-cal')}
-      </div>
-    `;
-  }
-  if (t.includes('거래대금')) {
-    return `
-      <div class="section" id="section-vol">
-        <div class="section-header"><div class="section-title">거래대금 폭발</div></div>
-        <div class="report-line"><span class="report-time">1</span><span class="report-text"><strong>삼성전자</strong> · 4.2배</span></div>
-        ${sectionFooter('section-vol')}
-      </div>
-    `;
-  }
-
-  // 사용자가 입력한 종목(삼성전자, SK하이닉스) 판별
+  // 사용자가 입력한 종목 판별
   let stockName = "";
   if (t.includes('삼성') || t.includes('삼전')) stockName = "삼성전자";
   else if (t.includes('하이닉스')) stockName = "SK하이닉스";
@@ -341,16 +334,17 @@ function getDemoResponse(userText) {
   // 데이터 창고에서 종목 데이터 꺼내오기
   const data = stockData[stockName];
 
-  // 창고에 종목 데이터가 있다면, 껍데기에 입혀서 보여주기
+  // 창고에 종목 데이터가 있다면, 껍데기에 모든 데이터를 입혀서 한 번에 보여주기
   if (data) {
     return `
+      <!-- [1] 왜 빨간불일까? -->
       <div class="section" id="section-why">
         <div class="section-header">
-          <div class="section-title">${stockName} 왜 빨간불일까? <span class="section-time">· ${data.time}</span></div>
+          <div class="section-title">${stockName} 왜 빨간불일까? <span class="section-time">· ${data.why_time}</span></div>
         </div>
-        <div class="cal-note">${data.title}<br></div>
-        <div class="report-line"><span class="report-time">${data.time1}</span><span class="report-text">${data.text1}</span></div>
-        <div class="report-line"><span class="report-time">${data.time2}</span><span class="report-text">${data.text2}</span></div>
+        <div class="cal-note">${data.why_title}<br></div>
+        <div class="report-line"><span class="report-time">${data.why_time1}</span><span class="report-text">${data.why_text1}</span></div>
+        <div class="report-line"><span class="report-time">${data.why_time2}</span><span class="report-text">${data.why_text2}</span></div>
         
         <div class="report-current">
           <span class="report-current-label">현재가</span>
@@ -363,10 +357,88 @@ function getDemoResponse(userText) {
         </div>
         ${sectionFooter('section-why')}
       </div>
+
+      <!-- [2] 큰손들은 뭐하고 있어? -->
+      <div class="section" id="section-big">
+        <div class="section-header">
+          <div class="section-title">큰손들은 뭐하고 있어? <span class="section-time">· 20초</span></div>
+        </div>
+        <div class="stock-name-sub">${stockName}</div>
+        <div class="bar-chart">
+          <div class="bar-row">
+            <div class="bar-label">외국인</div>
+            <div class="bar-track"><div class="bar-zero"></div><div class="bar-fill-right" style="width:${data.big_foreign_pct};"></div></div>
+            <div class="bar-value buy">${data.big_foreign_val}</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">기관</div>
+            <div class="bar-track"><div class="bar-zero"></div><div class="bar-fill-right" style="width:${data.big_inst_pct};"></div></div>
+            <div class="bar-value buy">${data.big_inst_val}</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label">개인</div>
+            <div class="bar-track"><div class="bar-zero"></div><div class="bar-fill-left" style="width:${data.big_retail_pct};"></div></div>
+            <div class="bar-value sell">${data.big_retail_val}</div>
+          </div>
+        </div>
+        <div class="cal-note">${data.big_memo}</div>
+        
+        <!-- 가로줄 안 보이게 수정 (style="border-top: none;" 추가) -->
+        <div class="related-stocks" style="border-top: none; margin-top: 10px;">
+          <div class="related-stocks-title">같이 움직인 종목</div>
+          <div class="related-stock-row"><span class="related-stock-name">${data.related1_name}</span><span class="related-stock-change up-color">${data.related1_change}</span></div>
+          <div class="related-stock-row"><span class="related-stock-name">${data.related2_name}</span><span class="related-stock-change up-color">${data.related2_change}</span></div>
+        </div>
+        ${sectionFooter('section-big')}
+      </div>
+
+      <!-- [3] 다가오는 일정 -->
+      <div class="section" id="section-cal">
+        <div class="section-header">
+          <div class="section-title">📅 다가오는 일정 <span class="section-time">· 15초</span></div>
+        </div>
+        <div class="calendar-list">
+          <div class="cal-row"><span class="cal-date">${data.cal_date1}</span><span class="cal-event">${data.cal_event1}</span></div>
+          <div class="cal-row"><span class="cal-date">${data.cal_date2}</span><span class="cal-event">${data.cal_event2}</span></div>
+        </div>
+        <div class="cal-note">${data.cal_memo}</div>
+        ${sectionFooter('section-cal')}
+      </div>
+
+      <!-- [4] 거래대금 폭발 -->
+      <div class="section" id="section-vol">
+        <div class="section-header"><div class="section-title">거래대금 폭발 <span class="section-time">· 10초</span></div></div>
+        <div class="report-line"><span class="report-time">1</span><span class="report-text"><strong>${data.vol_rank1}</strong></span></div>
+        <div class="report-line"><span class="report-time">2</span><span class="report-text"><strong>${data.vol_rank2}</strong></span></div>
+        <div class="report-line"><span class="report-time">3</span><span class="report-text"><strong>${data.vol_rank3}</strong></span></div>
+        ${sectionFooter('section-vol')}
+      </div>
+
+      <!-- [5] 내일 어디로 튈까? (투표) -->
+      <div class="section" id="section-vote">
+        <div class="section-header">
+          <div class="section-title">내일 어디로 튈까?</div>
+        </div>
+        <div class="vote-wrap">
+          <div class="vote-stats">
+            <span class="up-color">상승 ${data.vote_up}</span>
+            <span class="down-color">하락 ${data.vote_down}</span>
+          </div>
+          <div class="vote-bar">
+            <div class="vote-bar-up" id="voteUp" style="width:${data.vote_up};"></div>
+            <div class="vote-bar-down" id="voteDown" style="width:${data.vote_down};"></div>
+          </div>
+          <div class="vote-buttons">
+            <button class="vote-btn up" onclick="castVote('up')">상승 전망</button>
+            <button class="vote-btn down" onclick="castVote('down')">하락 전망</button>
+          </div>
+        </div>
+        ${sectionFooter('section-vote')}
+      </div>
     `;
   }
 
-  // 창고에 없는 내용물을 검색했을 때 나오는 화면
+  // 창고에 없는 내용물을 검색했을 때 나오는 안내 화면
   return `
     <div class="section" id="section-default">
       <div class="section-header">
@@ -374,31 +446,6 @@ function getDemoResponse(userText) {
       </div>
       <div class="report-note">아직 데이터 창고에 없는 종목입니다. '삼성전자' 또는 'SK하이닉스'를 검색해보세요!</div>
       ${sectionFooter('section-default')}
-    </div>
-  `;
-}
-
-function voteWidget() {
-  return `
-    <div class="section" id="section-vote">
-      <div class="section-header">
-        <div class="section-title">내일 어디로 튈까?</div>
-      </div>
-      <div class="vote-wrap">
-        <div class="vote-stats">
-          <span class="up-color">상승 68%</span>
-          <span class="down-color">하락 32%</span>
-        </div>
-        <div class="vote-bar">
-          <div class="vote-bar-up" id="voteUp" style="width:68%;"></div>
-          <div class="vote-bar-down" id="voteDown" style="width:32%;"></div>
-        </div>
-        <div class="vote-buttons">
-          <button class="vote-btn up" onclick="castVote('up')">상승 전망</button>
-          <button class="vote-btn down" onclick="castVote('down')">하락 전망</button>
-        </div>
-      </div>
-      ${sectionFooter('section-vote')}
     </div>
   `;
 }
@@ -442,7 +489,7 @@ async function sendMessage() {
 
   const fullResponse = getDemoResponse(text);
   await sleep(400);
-  body.innerHTML = fullResponse + voteWidget();
+  body.innerHTML = fullResponse; // 전체 데이터가 포함된 결과 출력
   body.style.opacity = '0';
   body.style.transition = 'opacity 0.3s';
   await sleep(50);
