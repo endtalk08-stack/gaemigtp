@@ -1,5 +1,5 @@
 // ==========================================
-// 1. 데이터 창고 (이제 모든 내용을 여기서 바꿀 수 있습니다!)
+// 1. 데이터 창고 (여기서 모든 내용을 수정할 수 있습니다)
 // ==========================================
 const stockData = {
   "삼성전자": {
@@ -69,10 +69,9 @@ const stockData = {
 
 
 // ==========================================
-// 2. 화면 및 기능 코드 (여기부터는 건드리지 않아도 됩니다)
+// 2. 화면 및 기능 코드
 // ==========================================
 
-/* ============ 테마 ============ */
 const themeToggle = document.getElementById('themeToggle');
 const themeKnob = document.getElementById('themeKnob');
 function applyTheme(theme) {
@@ -80,26 +79,24 @@ function applyTheme(theme) {
   themeKnob.textContent = theme === 'dark' ? '🌙' : '☀️';
   localStorage.setItem('theme', theme);
 }
-themeToggle.addEventListener('click', () => {
-  const cur = document.documentElement.getAttribute('data-theme');
-  applyTheme(cur === 'dark' ? 'light' : 'dark');
-});
-applyTheme(localStorage.getItem('theme') || 'dark');
+if (themeToggle) {
+  themeToggle.addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme');
+    applyTheme(cur === 'dark' ? 'light' : 'dark');
+  });
+  applyTheme(localStorage.getItem('theme') || 'dark');
+}
 
-/* ============ 사이드바 ============ */
 const Sidebar = (() => {
   const sidebar = document.getElementById('sidebar');
   const STORAGE = 'sidebar-expanded';
-  if (localStorage.getItem(STORAGE) === 'true' && window.innerWidth > 768) {
+  if (sidebar && localStorage.getItem(STORAGE) === 'true' && window.innerWidth > 768) {
     sidebar.classList.add('expanded');
   }
   function toggle() {
+    if (!sidebar) return;
     if (window.innerWidth <= 768) {
-      if (document.body.classList.contains('sidebar-mobile-open')) {
-        document.body.classList.remove('sidebar-mobile-open');
-      } else {
-        document.body.classList.add('sidebar-mobile-open');
-      }
+      document.body.classList.toggle('sidebar-mobile-open');
       return;
     }
     sidebar.classList.toggle('expanded');
@@ -110,45 +107,52 @@ const Sidebar = (() => {
   return { toggle, openMobile, closeMobile };
 })();
 
-/* ============ 홈으로 ============ */
-function goHome() {
-  newChat();
-}
+function goHome() { newChat(); }
 
-/* ============ gaemi 팝업 ============ */
 let currentMode = 'gaemi';
-
 function togglePopup(e, where) {
-  e.stopPropagation();
+  if (e) e.stopPropagation();
   if (where === 'main') {
     const popup = document.getElementById('gaemiPopup');
     const btn = document.getElementById('gaemiBtn');
-    document.getElementById('inputPopup').classList.remove('open');
-    document.getElementById('inputGaemiBtn').classList.remove('open');
-    popup.classList.toggle('open');
-    btn.classList.toggle('open');
+    const ip = document.getElementById('inputPopup');
+    const ib = document.getElementById('inputGaemiBtn');
+    if (ip) ip.classList.remove('open');
+    if (ib) ib.classList.remove('open');
+    if (popup) popup.classList.toggle('open');
+    if (btn) btn.classList.toggle('open');
   } else {
     const popup = document.getElementById('inputPopup');
     const btn = document.getElementById('inputGaemiBtn');
-    document.getElementById('gaemiPopup').classList.remove('open');
-    document.getElementById('gaemiBtn').classList.remove('open');
-    popup.classList.toggle('open');
-    btn.classList.toggle('open');
+    const gp = document.getElementById('gaemiPopup');
+    const gb = document.getElementById('gaemiBtn');
+    if (gp) gp.classList.remove('open');
+    if (gb) gb.classList.remove('open');
+    if (popup) popup.classList.toggle('open');
+    if (btn) btn.classList.toggle('open');
   }
 }
 
 function selectMode(mode, where) {
   currentMode = mode;
-  document.getElementById('gaemiBtnText').textContent = mode;
-  document.getElementById('inputGaemiBtnText').textContent = mode;
+  const gt = document.getElementById('gaemiBtnText');
+  const igt = document.getElementById('inputGaemiBtnText');
+  if (gt) gt.textContent = mode;
+  if (igt) igt.textContent = mode;
   ['gaemi', 'info', 'pro'].forEach(m => {
-    document.getElementById('check-' + m + '-main').style.visibility = (m === mode) ? 'visible' : 'hidden';
-    document.getElementById('check-' + m + '-input').style.visibility = (m === mode) ? 'visible' : 'hidden';
+    const cm = document.getElementById('check-' + m + '-main');
+    const ci = document.getElementById('check-' + m + '-input');
+    if (cm) cm.style.visibility = (m === mode) ? 'visible' : 'hidden';
+    if (ci) ci.style.visibility = (m === mode) ? 'visible' : 'hidden';
   });
-  document.getElementById('gaemiPopup').classList.remove('open');
-  document.getElementById('gaemiBtn').classList.remove('open');
-  document.getElementById('inputPopup').classList.remove('open');
-  document.getElementById('inputGaemiBtn').classList.remove('open');
+  const gp = document.getElementById('gaemiPopup');
+  const gb = document.getElementById('gaemiBtn');
+  const ip = document.getElementById('inputPopup');
+  const ib = document.getElementById('inputGaemiBtn');
+  if (gp) gp.classList.remove('open');
+  if (gb) gb.classList.remove('open');
+  if (ip) ip.classList.remove('open');
+  if (ib) ib.classList.remove('open');
 }
 
 document.addEventListener('click', (e) => {
@@ -156,17 +160,16 @@ document.addEventListener('click', (e) => {
   const mainBtn = document.getElementById('gaemiBtn');
   const inputPopup = document.getElementById('inputPopup');
   const inputBtn = document.getElementById('inputGaemiBtn');
-  if (mainPopup && !mainPopup.contains(e.target) && !mainBtn.contains(e.target)) {
+  if (mainPopup && mainBtn && !mainPopup.contains(e.target) && !mainBtn.contains(e.target)) {
     mainPopup.classList.remove('open');
     mainBtn.classList.remove('open');
   }
-  if (inputPopup && !inputPopup.contains(e.target) && !inputBtn.contains(e.target)) {
+  if (inputPopup && inputBtn && !inputPopup.contains(e.target) && !inputBtn.contains(e.target)) {
     inputPopup.classList.remove('open');
     inputBtn.classList.remove('open');
   }
 });
 
-/* ============ 채팅 ============ */
 const input = document.getElementById('userInput');
 const sendBtn = document.getElementById('sendBtn');
 const chatContent = document.getElementById('chatContent');
@@ -174,44 +177,58 @@ const welcome = document.getElementById('welcome');
 const chatContainer = document.getElementById('chatContainer');
 let isStreaming = false;
 
-input.addEventListener('input', () => {
-  sendBtn.disabled = input.value.trim() === '' || isStreaming;
-  input.style.height = 'auto';
-  input.style.height = Math.min(input.scrollHeight, 200) + 'px';
-});
-input.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-});
+if (input) {
+  input.addEventListener('input', () => {
+    if (sendBtn) sendBtn.disabled = input.value.trim() === '' || isStreaming;
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 200) + 'px';
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+}
 
 function mainSearchGo() {
-  const v = document.getElementById('mainSearch').value.trim();
+  const ms = document.getElementById('mainSearch');
+  if (!ms) return;
+  const v = ms.value.trim();
   if (!v) return;
   quickSearch(v);
 }
-document.getElementById('mainSearch').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') { e.preventDefault(); mainSearchGo(); }
-});
+const msEl = document.getElementById('mainSearch');
+if (msEl) {
+  msEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); mainSearchGo(); }
+  });
+}
 
 function quickSearch(name) {
+  if (!input) return;
   input.value = name + ' 왜 빨간불일까?';
   input.dispatchEvent(new Event('input'));
   sendMessage();
 }
 
 function newChat() {
+  if (!chatContent) return;
   chatContent.innerHTML = '';
-  chatContent.appendChild(welcome);
-  welcome.style.display = 'flex';
+  if (welcome) {
+    chatContent.appendChild(welcome);
+    welcome.style.display = 'flex';
+  }
   document.body.classList.add('welcome-mode');
-  input.value = '';
-  input.style.height = 'auto';
-  sendBtn.disabled = true;
+  if (input) {
+    input.value = '';
+    input.style.height = 'auto';
+  }
+  if (sendBtn) sendBtn.disabled = true;
   isStreaming = false;
-  Panel.close();
+  if (typeof Panel !== 'undefined') Panel.close();
   Sidebar.closeMobile();
 }
 
 function addMessage(role, content, isHTML = false) {
+  if (!chatContent) return;
   const msg = document.createElement('div');
   if (role === 'user') {
     msg.className = 'message user-msg-row';
@@ -221,7 +238,7 @@ function addMessage(role, content, isHTML = false) {
     pill.textContent = displayWord;
     msg.appendChild(pill);
     chatContent.appendChild(msg);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+    if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
     return pill;
   } else {
     msg.className = 'message';
@@ -235,7 +252,7 @@ function addMessage(role, content, isHTML = false) {
     msg.appendChild(avatar);
     msg.appendChild(body);
     chatContent.appendChild(msg);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+    if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
     return body;
   }
 }
@@ -287,10 +304,10 @@ function refreshSection(id) { showToast('새로고침'); }
 
 function toggleLike(id, btn, type) {
   const footer = btn.closest('.section-footer');
+  if (!footer) return;
   const actionButtons = footer.querySelectorAll('.icon-action');
   const likeBtn = actionButtons[2];
   const dislikeBtn = actionButtons[3];
-
   if (!likeBtn || !dislikeBtn) return;
 
   if (type === 'like') {
@@ -322,35 +339,28 @@ function showToast(msg) {
   toast._t = setTimeout(() => { toast.style.opacity = '0'; }, 1500);
 }
 
-// ==== 데이터 창고와 연동되도록 수정된 부분 ====
 function getDemoResponse(userText) {
   const t = userText.toLowerCase();
 
-  // 사용자가 입력한 종목 판별
   let stockName = "";
   if (t.includes('삼성') || t.includes('삼전')) stockName = "삼성전자";
   else if (t.includes('하이닉스')) stockName = "SK하이닉스";
 
-  // 데이터 창고에서 종목 데이터 꺼내오기
   const data = stockData[stockName];
 
-  // 창고에 종목 데이터가 있다면, 껍데기에 모든 데이터를 입혀서 한 번에 보여주기
   if (data) {
     return `
-      <!-- [1] 왜 빨간불일까? -->
       <div class="section" id="section-why">
         <div class="section-header">
           <div class="section-title">${stockName} 왜 빨간불일까? <span class="section-time">· ${data.why_time}</span></div>
         </div>
-        <div class="cal-note">${data.why_title}<br></div>
+        <div class="cal-note">${data.why_title}</div>
         <div class="report-line"><span class="report-time">${data.why_time1}</span><span class="report-text">${data.why_text1}</span></div>
         <div class="report-line"><span class="report-time">${data.why_time2}</span><span class="report-text">${data.why_text2}</span></div>
-        
         <div class="report-current">
           <span class="report-current-label">현재가</span>
           <span class="report-current-value">${data.currentPrice} <span class="up-color">${data.change}</span></span>
         </div>
-
         <div class="report-sources">
           <div class="report-sources-item">${data.news1}</div>
           <div class="report-sources-item">${data.news2}</div>
@@ -358,7 +368,6 @@ function getDemoResponse(userText) {
         ${sectionFooter('section-why')}
       </div>
 
-      <!-- [2] 큰손들은 뭐하고 있어? -->
       <div class="section" id="section-big">
         <div class="section-header">
           <div class="section-title">큰손들은 뭐하고 있어? <span class="section-time">· 20초</span></div>
@@ -382,8 +391,6 @@ function getDemoResponse(userText) {
           </div>
         </div>
         <div class="cal-note">${data.big_memo}</div>
-        
-        <!-- 가로줄 안 보이게 수정 (style="border-top: none;" 추가) -->
         <div class="related-stocks" style="border-top: none; margin-top: 10px;">
           <div class="related-stocks-title">같이 움직인 종목</div>
           <div class="related-stock-row"><span class="related-stock-name">${data.related1_name}</span><span class="related-stock-change up-color">${data.related1_change}</span></div>
@@ -392,7 +399,6 @@ function getDemoResponse(userText) {
         ${sectionFooter('section-big')}
       </div>
 
-      <!-- [3] 다가오는 일정 -->
       <div class="section" id="section-cal">
         <div class="section-header">
           <div class="section-title">📅 다가오는 일정 <span class="section-time">· 15초</span></div>
@@ -405,7 +411,6 @@ function getDemoResponse(userText) {
         ${sectionFooter('section-cal')}
       </div>
 
-      <!-- [4] 거래대금 폭발 -->
       <div class="section" id="section-vol">
         <div class="section-header"><div class="section-title">거래대금 폭발 <span class="section-time">· 10초</span></div></div>
         <div class="report-line"><span class="report-time">1</span><span class="report-text"><strong>${data.vol_rank1}</strong></span></div>
@@ -414,7 +419,6 @@ function getDemoResponse(userText) {
         ${sectionFooter('section-vol')}
       </div>
 
-      <!-- [5] 내일 어디로 튈까? (투표) -->
       <div class="section" id="section-vote">
         <div class="section-header">
           <div class="section-title">내일 어디로 튈까?</div>
@@ -438,7 +442,6 @@ function getDemoResponse(userText) {
     `;
   }
 
-  // 창고에 없는 내용물을 검색했을 때 나오는 안내 화면
   return `
     <div class="section" id="section-default">
       <div class="section-header">
@@ -456,22 +459,25 @@ function castVote(type) {
   voted = true;
   const up = document.getElementById('voteUp');
   const down = document.getElementById('voteDown');
-  if (type === 'up') { up.style.width = '74%'; down.style.width = '26%'; }
-  else { up.style.width = '61%'; down.style.width = '39%'; }
+  if (up && down) {
+    if (type === 'up') { up.style.width = '74%'; down.style.width = '26%'; }
+    else { up.style.width = '61%'; down.style.width = '39%'; }
+  }
 }
 
 async function sendMessage() {
-  const text = input.value.trim();
+  const text = input ? input.value.trim() : '';
   if (!text || isStreaming) return;
 
   document.body.classList.remove('welcome-mode');
-
-  if (welcome.parentNode === chatContent) welcome.style.display = 'none';
+  if (welcome && welcome.parentNode === chatContent) welcome.style.display = 'none';
 
   addMessage('user', text);
-  input.value = '';
-  input.style.height = 'auto';
-  sendBtn.disabled = true;
+  if (input) {
+    input.value = '';
+    input.style.height = 'auto';
+  }
+  if (sendBtn) sendBtn.disabled = true;
   isStreaming = true;
 
   const msg = document.createElement('div');
@@ -484,19 +490,19 @@ async function sendMessage() {
   body.innerHTML = '<div style="display:inline-flex;gap:4px;padding:8px 0;"><span style="width:8px;height:8px;border-radius:50%;background:var(--text-dim);animation:bounce 1.4s infinite;"></span><span style="width:8px;height:8px;border-radius:50%;background:var(--text-dim);animation:bounce 1.4s infinite 0.2s;"></span><span style="width:8px;height:8px;border-radius:50%;background:var(--text-dim);animation:bounce 1.4s infinite 0.4s;"></span></div>';
   msg.appendChild(avatar);
   msg.appendChild(body);
-  chatContent.appendChild(msg);
-  chatContainer.scrollTop = chatContainer.scrollHeight;
+  if (chatContent) chatContent.appendChild(msg);
+  if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
 
   const fullResponse = getDemoResponse(text);
   await sleep(400);
-  body.innerHTML = fullResponse; // 전체 데이터가 포함된 결과 출력
+  body.innerHTML = fullResponse;
   body.style.opacity = '0';
   body.style.transition = 'opacity 0.3s';
   await sleep(50);
   body.style.opacity = '1';
 
   isStreaming = false;
-  sendBtn.disabled = input.value.trim() === '';
+  if (sendBtn && input) sendBtn.disabled = input.value.trim() === '';
 }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
@@ -504,6 +510,8 @@ const Panel = (() => {
   const STORAGE_WIDTH = 'panel-width';
   const panel = document.getElementById('panel');
   const grip = document.getElementById('panelGrip');
+
+  if (!panel || !grip) return { close: () => {}, toggle: () => {} };
 
   let savedWidth = parseInt(localStorage.getItem(STORAGE_WIDTH)) || 400;
   document.documentElement.style.setProperty('--panel-width', savedWidth + 'px');
@@ -550,10 +558,10 @@ const Panel = (() => {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     document.body.classList.remove('sidebar-mobile-open');
-    Panel.close();
-    document.getElementById('gaemiPopup').classList.remove('open');
-    document.getElementById('gaemiBtn').classList.remove('open');
-    document.getElementById('inputPopup').classList.remove('open');
-    document.getElementById('inputGaemiBtn').classList.remove('open');
+    if (typeof Panel !== 'undefined') Panel.close();
+    ['gaemiPopup', 'gaemiBtn', 'inputPopup', 'inputGaemiBtn'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('open');
+    });
   }
 });
