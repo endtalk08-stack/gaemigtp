@@ -1,9 +1,8 @@
 // ==========================================
-// 1. 데이터 창고 (여기서 모든 내용을 수정할 수 있습니다)
+// 1. 데이터 창고
 // ==========================================
 const stockData = {
   "삼성전자": {
-    // [1] 왜 빨간불일까?
     why_time: "30초",
     why_title: "삼성전자 오늘 신났네 ㅎㅎ",
     why_time1: "08:00", why_text1: "프리마켓 +1.5% 상승 출발",
@@ -12,7 +11,6 @@ const stockData = {
     news1: "📰 HBM 공급 확대 뉴스",
     news2: "📌 외국인 100만 주 순매수",
 
-    // [2] 큰손들은 뭐하고 있어?
     big_foreign_pct: "40%", big_foreign_val: "+48만",
     big_inst_pct: "18%", big_inst_val: "+21만",
     big_retail_pct: "58%", big_retail_val: "-69만",
@@ -20,22 +18,18 @@ const stockData = {
     related1_name: "SK하이닉스", related1_change: "+2.1%",
     related2_name: "한미반도체", related2_change: "+1.8%",
 
-    // [3] 다가오는 일정
     cal_date1: "🌙 오늘 밤", cal_event1: "조용함",
     cal_date2: "🔥 09/17(목)", cal_event2: "미국 FOMC 기준금리 결정 (03:00)",
     cal_memo: "지표 발표 전후로는 호가창 얇아짐.<br>뇌동매매 금지!",
 
-    // [4] 거래대금 폭발
     vol_rank1: "삼성전자 · 4.2배",
     vol_rank2: "SK하이닉스 · 3.1배",
     vol_rank3: "우리로 · 2.8배",
 
-    // [5] 내일 어디로 튈까? (투표)
     vote_up: "68%", vote_down: "32%"
   },
   
   "SK하이닉스": {
-    // [1] 왜 빨간불일까?
     why_time: "20초",
     why_title: "엔비디아 실적 발표 대기 중!",
     why_time1: "08:30", why_text1: "장전 동시호가 강세",
@@ -44,7 +38,6 @@ const stockData = {
     news1: "📰 AI 반도체 수요 급증 뉴스",
     news2: "📌 기관 집중 매수",
 
-    // [2] 큰손들은 뭐하고 있어?
     big_foreign_pct: "55%", big_foreign_val: "+72만",
     big_inst_pct: "25%", big_inst_val: "+31만",
     big_retail_pct: "20%", big_retail_val: "-15만",
@@ -52,21 +45,17 @@ const stockData = {
     related1_name: "한미반도체", related1_change: "+4.5%",
     related2_name: "이수페타시스", related2_change: "+3.2%",
 
-    // [3] 다가오는 일정
     cal_date1: "🔥 내일 새벽", cal_event1: "엔비디아 2분기 실적 발표",
     cal_date2: "📌 09/25(금)", cal_event2: "미국 마이크론 실적 발표",
     cal_memo: "엔비디아 실적에 따라 내일 갭상승/하락 결정됨!",
 
-    // [4] 거래대금 폭발
     vol_rank1: "SK하이닉스 · 5.5배",
     vol_rank2: "한미반도체 · 4.1배",
     vol_rank3: "삼성전자 · 2.2배",
 
-    // [5] 내일 어디로 튈까? (투표)
     vote_up: "85%", vote_down: "15%"
   }
 };
-
 
 // ==========================================
 // 2. 화면 및 기능 코드
@@ -76,7 +65,7 @@ const themeToggle = document.getElementById('themeToggle');
 const themeKnob = document.getElementById('themeKnob');
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
-  themeKnob.textContent = theme === 'dark' ? '🌙' : '☀️';
+  if (themeKnob) themeKnob.textContent = theme === 'dark' ? '🌙' : '☀️';
   localStorage.setItem('theme', theme);
 }
 if (themeToggle) {
@@ -107,7 +96,9 @@ const Sidebar = (() => {
   return { toggle, openMobile, closeMobile };
 })();
 
-function goHome() { newChat(); }
+function goHome() {
+  newChat();
+}
 
 let currentMode = 'gaemi';
 function togglePopup(e, where) {
@@ -145,14 +136,10 @@ function selectMode(mode, where) {
     if (cm) cm.style.visibility = (m === mode) ? 'visible' : 'hidden';
     if (ci) ci.style.visibility = (m === mode) ? 'visible' : 'hidden';
   });
-  const gp = document.getElementById('gaemiPopup');
-  const gb = document.getElementById('gaemiBtn');
-  const ip = document.getElementById('inputPopup');
-  const ib = document.getElementById('inputGaemiBtn');
-  if (gp) gp.classList.remove('open');
-  if (gb) gb.classList.remove('open');
-  if (ip) ip.classList.remove('open');
-  if (ib) ib.classList.remove('open');
+  ['gaemiPopup', 'gaemiBtn', 'inputPopup', 'inputGaemiBtn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('open');
+  });
 }
 
 document.addEventListener('click', (e) => {
@@ -204,8 +191,8 @@ if (msEl) {
 
 function quickSearch(name) {
   if (!input) return;
-  input.value = name + ' 왜 빨간불일까?';
-  input.dispatchEvent(new Event('input'));
+  input.value = name;
+  if (sendBtn) sendBtn.disabled = false;
   sendMessage();
 }
 
@@ -232,10 +219,9 @@ function addMessage(role, content, isHTML = false) {
   const msg = document.createElement('div');
   if (role === 'user') {
     msg.className = 'message user-msg-row';
-    const displayWord = content.replace(' 왜 빨간불일까?', '').trim();
     const pill = document.createElement('div');
     pill.className = 'user-pill';
-    pill.textContent = displayWord;
+    pill.textContent = content;
     msg.appendChild(pill);
     chatContent.appendChild(msg);
     if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
