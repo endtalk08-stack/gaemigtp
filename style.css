@@ -1463,3 +1463,11 @@ body.welcome-mode .input-wrapper { display: none; }
 .widget-foot {
   background: var(--bg) !important;
 }
+
+/* ③-1 title tab tune: make the active widget title visibly pill-shaped. */
+.widget-tab.active {
+  background: var(--bg-input) !important;
+  color: var(--text) !important;
+  border-radius: 7px;
+  padding: 5px 9px;
+}
