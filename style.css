@@ -1141,3 +1141,50 @@ body.welcome-mode .input-wrapper { display: none; }
   font-size: 11px;
   cursor: default;
 }
+
+/* B안: AI 답변 자체를 CENTER의 위젯 묶음으로 표시한다.
+   현재는 구조만 적용하고 기존 위젯 내부 디자인은 건드리지 않는다. */
+.ai-response-message {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+.ai-widget-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 10px;
+  align-items: start;
+}
+.ai-answer-widget {
+  grid-column: span 6;
+  min-width: 0;
+  margin: 0 !important;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg-panel);
+  overflow: hidden;
+}
+.ai-answer-widget .section-header {
+  border-bottom: 1px solid var(--border);
+}
+.ai-answer-widget .section-footer {
+  border-top: 1px solid var(--border);
+}
+.ai-widget-loading {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  gap: 4px;
+  padding: 10px 0;
+}
+.ai-widget-loading span {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--text-dim);
+  animation: bounce 1.4s infinite;
+}
+.ai-widget-loading span:nth-child(2) { animation-delay: .2s; }
+.ai-widget-loading span:nth-child(3) { animation-delay: .4s; }
+@media (max-width: 900px) {
+  .ai-answer-widget { grid-column: 1 / -1; }
+}

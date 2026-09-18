@@ -466,15 +466,13 @@ async function sendMessage() {
   if (sendBtn) sendBtn.disabled = true;
   isStreaming = true;
 
+  // B안: AI의 답변 자체가 위젯들의 묶음이 된다.
+  // 별도의 AI 답변 블록/아바타를 만들지 않고, 검색 결과를 CENTER 위젯으로 바로 배치한다.
   const msg = document.createElement('div');
-  msg.className = 'message';
-  const avatar = document.createElement('div');
-  avatar.className = 'msg-avatar ai';
-  avatar.textContent = 'G';
+  msg.className = 'message ai-response-message';
   const body = document.createElement('div');
-  body.className = 'msg-body';
-  body.innerHTML = '<div style="display:inline-flex;gap:4px;padding:8px 0;"><span style="width:8px;height:8px;border-radius:50%;background:var(--text-dim);animation:bounce 1.4s infinite;"></span><span style="width:8px;height:8px;border-radius:50%;background:var(--text-dim);animation:bounce 1.4s infinite 0.2s;"></span><span style="width:8px;height:8px;border-radius:50%;background:var(--text-dim);animation:bounce 1.4s infinite 0.4s;"></span></div>';
-  msg.appendChild(avatar);
+  body.className = 'ai-widget-grid';
+  body.innerHTML = '<div class="ai-widget-loading"><span></span><span></span><span></span></div>';
   msg.appendChild(body);
   if (chatContent) chatContent.appendChild(msg);
   if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -483,13 +481,10 @@ async function sendMessage() {
   await sleep(400);
   body.innerHTML = fullResponse;
 
-  // 설치된 전략 위젯은 별도 페이지로 이동하지 않고,
-  // 방금 검색한 종목의 AI 응답 바로 아래에 붙인다.
-  const matchedStock = (text.includes('삼성') || text.includes('삼전')) ? '삼성전자'
-    : (text.includes('하이닉스') ? 'SK하이닉스' : '');
-  if (matchedStock && typeof WidgetEngine !== 'undefined') {
-    WidgetEngine.renderInstalledForStock(body, matchedStock);
-  }
+  // getDemoResponse()의 각 .section이 곧 하나의 AI 위젯이다.
+  body.querySelectorAll('.section').forEach(section => {
+    section.classList.add('ai-answer-widget');
+  });
 
   body.style.opacity = '0';
   body.style.transition = 'opacity 0.3s';
