@@ -451,6 +451,121 @@ function castVote(type) {
   }
 }
 
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, ch => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[ch]));
+}
+
+function activateWidgetTab(body, index) {
+  const sections = Array.from(body.querySelectorAll('.widget-content > .section'));
+  const tabs = Array.from(body.querySelectorAll('.widget-tab'));
+  sections.forEach((section, i) => section.classList.toggle('widget-section-active', i === index));
+  tabs.forEach((tab, i) => tab.classList.toggle('active', i === index));
+}
+
+function removeWidgetTab(body, index) {
+  const sections = Array.from(body.querySelectorAll('.widget-content > .section'));
+  const tabs = Array.from(body.querySelectorAll('.widget-tab'));
+  if (sections.length <= 1) {
+    showToast('마지막 위젯은 삭제할 수 없어요');
+    return;
+  }
+  if (!sections[index]) return;
+  sections[index].remove();
+  tabs[index].remove();
+
+  const remaining = Array.from(body.querySelectorAll('.widget-tab'));
+  const nextIndex = Math.min(index, remaining.length - 1);
+  activateWidgetTab(body, nextIndex);
+  populateWidgetAddMenu(body);
+}
+
+function populateWidgetAddMenu(body) {
+  const menu = body.querySelector('.widget-add-menu');
+  if (!menu) return;
+  menu.innerHTML = '';
+
+  const titles = [
+    '왜 빨간불일까?',
+    '큰손들은 뭐하고 있어?',
+    '다가오는 일정',
+    '거래대금 폭발',
+    '내일 어디로 튈까?'
+  ];
+  const existingKeys = new Set(
+    Array.from(body.querySelectorAll('.widget-content > .section'))
+      .map(section => section.dataset.widgetKey)
+  );
+
+  titles.forEach((title, i) => {
+    const exists = existingKeys.has(String(i));
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'widget-add-item';
+    item.innerHTML = `<span>${escapeHTML(title)}</span><span class="widget-add-state">${exists ? '추가됨' : '추가'}</span>`;
+    item.disabled = exists;
+    item.addEventListener('click', () => {
+      if (exists) return;
+      addWidgetSection(body, i, title);
+      menu.hidden = true;
+    });
+    menu.appendChild(item);
+  });
+}
+
+function addWidgetSection(body, index, title) {
+  const stockText = body.dataset.query || '';
+  const html = getDemoResponse(stockText);
+  const temp = document.createElement('div');
+  temp.innerHTML = html;
+  const source = temp.querySelectorAll('.section')[index];
+  if (!source) return;
+
+  const content = body.querySelector('.widget-content');
+  const section = source.cloneNode(true);
+  const header = section.querySelector('.section-header');
+  if (header) header.remove();
+  section.dataset.widgetKey = String(index);
+  section.classList.remove('widget-section-active');
+  content.appendChild(section);
+
+  const tabs = body.querySelector('.widget-tabs');
+  const tab = document.createElement('button');
+  tab.type = 'button';
+  tab.className = 'widget-tab';
+  tab.setAttribute('role', 'tab');
+  tab.innerHTML = `<span class="widget-tab-label">${escapeHTML(title)}</span><span class="widget-tab-close" title="삭제">×</span>`;
+  tab.addEventListener('click', (e) => {
+    const currentIndex = Array.from(body.querySelectorAll('.widget-content > .section')).indexOf(section);
+    if (e.target.classList.contains('widget-tab-close')) removeWidgetTab(body, currentIndex);
+    else activateWidgetTab(body, currentIndex);
+  });
+  tabs.appendChild(tab);
+
+  activateWidgetTab(body, Array.from(content.querySelectorAll('.section')).indexOf(section));
+  populateWidgetAddMenu(body);
+}
+
+function toggleWidgetAddMenu(btn) {
+  const body = btn.closest('.ai-widget-shell');
+  if (!body) return;
+  const menu = body.querySelector('.widget-add-menu');
+  if (!menu) return;
+  menu.hidden = !menu.hidden;
+  if (!menu.hidden) {
+    populateWidgetAddMenu(body);
+    const close = (e) => {
+      if (!body.contains(e.target)) {
+        menu.hidden = true;
+        document.removeEventListener('click', close);
+      }
+    };
+    setTimeout(() => document.addEventListener('click', close), 0);
+  }
+}
+
 async function sendMessage() {
   const text = input ? input.value.trim() : '';
   if (!text || isStreaming) return;
@@ -470,6 +585,7 @@ async function sendMessage() {
   msg.className = 'message widget-message';
   const body = document.createElement('div');
   body.className = 'msg-body ai-widget-shell';
+  body.dataset.query = text;
   body.innerHTML = '<div class="widget-loading" style="display:inline-flex;gap:4px;padding:8px 0;"><span style="width:8px;height:8px;border-radius:50%;background:var(--text-dim);animation:bounce 1.4s infinite;"></span><span style="width:8px;height:8px;border-radius:50%;background:var(--text-dim);animation:bounce 1.4s infinite 0.2s;"></span><span style="width:8px;height:8px;border-radius:50%;background:var(--text-dim);animation:bounce 1.4s infinite 0.4s;"></span></div>';
   msg.appendChild(body);
   if (chatContent) chatContent.appendChild(msg);
@@ -477,7 +593,52 @@ async function sendMessage() {
 
   const fullResponse = getDemoResponse(text);
   await sleep(400);
-  body.innerHTML = '<div class=\"widget-content\">' + fullResponse + '</div>';
+
+  // B4 step 2: turn the AI answer into a tabbed widget.
+  body.innerHTML = `
+    <div class="ai-widget-header">
+      <div class="widget-tabs" role="tablist"></div>
+      <button class="widget-add-btn" type="button" onclick="toggleWidgetAddMenu(this)" title="위젯 추가">+</button>
+      <div class="widget-add-menu" hidden></div>
+    </div>
+    <div class="widget-content">${fullResponse}</div>
+  `;
+
+  const content = body.querySelector('.widget-content');
+  const sections = Array.from(content.querySelectorAll(':scope > .section'));
+  const tabs = body.querySelector('.widget-tabs');
+
+  sections.forEach((section, index) => {
+    section.dataset.widgetKey = String(index);
+    const header = section.querySelector('.section-header');
+    const titleEl = header ? header.querySelector('.section-title') : null;
+    let title = titleEl ? titleEl.textContent.trim() : `분석 ${index + 1}`;
+
+    // The stock name belongs to the search chip above the widget, not the widget title.
+    title = title.replace(/^.*?\s*왜 빨간불일까\?/,'왜 빨간불일까?').replace(/^📅\s*/,'다가오는 일정');
+
+    const tab = document.createElement('button');
+    tab.type = 'button';
+    tab.className = 'widget-tab' + (index === 0 ? ' active' : '');
+    tab.setAttribute('role', 'tab');
+    tab.dataset.index = index;
+    tab.innerHTML = `<span class="widget-tab-label">${escapeHTML(title)}</span><span class="widget-tab-close" title="삭제">×</span>`;
+    tab.addEventListener('click', (e) => {
+      const currentIndex = Array.from(body.querySelectorAll('.widget-content > .section')).indexOf(section);
+      if (e.target.classList.contains('widget-tab-close')) {
+        removeWidgetTab(body, currentIndex);
+        return;
+      }
+      activateWidgetTab(body, currentIndex);
+    });
+    tabs.appendChild(tab);
+
+    if (header) header.remove();
+    section.classList.toggle('widget-section-active', index === 0);
+  });
+
+  populateWidgetAddMenu(body);
+
   body.style.opacity = '0';
   body.style.transition = 'opacity 0.3s';
   await sleep(50);
