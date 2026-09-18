@@ -1029,3 +1029,36 @@ body.welcome-mode .input-wrapper { display: none; }
 .widget-tab-panels{flex:1;min-height:0;overflow:auto}
 .widget-tab-panel{display:none;min-height:100%;padding:12px;box-sizing:border-box}
 .widget-tab-panel.active{display:block}
+
+/* v3: ratio-check typography — all widget text follows time-label size */
+.strategy-widget,
+.strategy-widget * {
+  font-size: 11px;
+}
+.strategy-widget-title {
+  font-size: 11px !important;
+  font-weight: 400;
+}
+.widget-lead,
+.widget-lead-line,
+.widget-event,
+.widget-highlight,
+.widget-tagline,
+.widget-foot button,
+.widget-tab {
+  font-size: 11px !important;
+  font-weight: 400;
+}
+.widget-time {
+  font-size: 11px !important;
+  font-weight: 400;
+}
+/* Restore horizontal rules temporarily so spacing/ratio can be judged. */
+.widget-timeline-row {
+  height: 32px;
+  min-height: 32px;
+  border-bottom: 1px solid var(--border);
+}
+.widget-lead {
+  margin-bottom: 10px;
+}
