@@ -1023,8 +1023,8 @@ body.welcome-mode .input-wrapper { display: none; }
 .widget-event,.widget-highlight{font-weight:400}
 .widget-tagline{border-top:0;padding-top:8px;font-size:11px;font-weight:400}
 .widget-head-actions button[data-widget-add-tab]{font-size:19px;width:30px;height:30px;line-height:1}
-.widget-tabs{height:32px;min-height:32px;display:flex;align-items:center;gap:3px;padding:0 8px;border-bottom:none;overflow-x:auto}
-.widget-tab{border:0;background:var(--bg-panel-header);color:var(--text-muted);border-radius:7px;padding:5px 9px;cursor:pointer;font:inherit;font-size:11px;white-space:nowrap}
+.widget-tabs{height:32px;min-height:32px;display:flex;align-items:center;gap:3px;padding:0 8px;border-bottom:1px solid var(--border);overflow-x:auto}
+.widget-tab{border:0;background:transparent;color:var(--text-muted);border-radius:7px;padding:5px 9px;cursor:pointer;font:inherit;font-size:11px;white-space:nowrap}
 .widget-tab.active{background:var(--bg-hover);color:var(--text)}
 .widget-tab-panels{flex:1;min-height:0;overflow:auto}
 .widget-tab-panel{display:none;min-height:100%;padding:12px;box-sizing:border-box}
@@ -1464,10 +1464,10 @@ body.welcome-mode .input-wrapper { display: none; }
   background: var(--bg) !important;
 }
 
-/* ③-1 title tab tune: make the active widget title visibly pill-shaped. */
-.widget-tab.active {
+/* ③-1 final title match: active widget tab uses the site's existing user-pill colors. */
+.chat-content .message.ai-widget-message .widget-tab.active {
   background: var(--bg-input) !important;
+  border: 1px solid var(--border) !important;
   color: var(--text) !important;
   border-radius: 7px;
-  padding: 5px 9px;
 }
