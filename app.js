@@ -6,7 +6,7 @@ const stockData = {
     why_time: "30초",
     why_title: "삼성전자 오늘 신났네 ㅎㅎ",
     why_time1: "09:00 시초가 4.2배 폭발", 
-    why_text2: "거래대금 4.2배 폭발",
+    why_text2: "09:00 거래대금 4.2배 폭발",
     currentPrice: "259,500원", change: "+3.2%",
     news1: "📰 HBM 공급 확대 뉴스",
     news2: "📌 외국인 100만 주 순매수",
