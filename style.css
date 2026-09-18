@@ -1465,9 +1465,18 @@ body.welcome-mode .input-wrapper { display: none; }
 }
 
 /* ③-1 final title match: active widget tab uses the site's existing user-pill colors. */
+/* ③-1 final title match: use the exact same surface as the site's user/stock pill.
+   The single-widget title is .strategy-widget-title; when tabs are active, .widget-tab.active is used. */
+.chat-content .message.ai-widget-message .strategy-widget-title,
 .chat-content .message.ai-widget-message .widget-tab.active {
   background: var(--bg-input) !important;
   border: 1px solid var(--border) !important;
   color: var(--text) !important;
-  border-radius: 7px;
+  border-radius: 7px !important;
+  padding: 5px 9px !important;
+}
+.chat-content .message.ai-widget-message .strategy-widget-title {
+  flex: 0 1 auto !important;
+  width: fit-content;
+  max-width: 240px;
 }
