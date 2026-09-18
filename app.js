@@ -551,3 +551,290 @@ document.addEventListener('keydown', (e) => {
     });
   }
 });
+
+
+/* ==========================================
+   3. gaemiGTP 위젯 엔진 v1
+   - 12-column grid
+   - drag / resize
+   - add / remove
+   - common widget actions
+   ========================================== */
+const WidgetStore = (() => {
+  const store = document.getElementById('widgetStore');
+  const search = document.getElementById('widgetStoreSearch');
+
+  function open() {
+    if (!store) return;
+    store.classList.add('open');
+    store.setAttribute('aria-hidden', 'false');
+    if (search) setTimeout(() => search.focus(), 0);
+  }
+  function close() {
+    if (!store) return;
+    store.classList.remove('open');
+    store.setAttribute('aria-hidden', 'true');
+  }
+
+  function filter(value) {
+    const q = String(value || '').trim().toLowerCase();
+    document.querySelectorAll('.widget-store-card').forEach(card => {
+      const hay = (card.dataset.widgetSearch || '').toLowerCase();
+      card.classList.toggle('is-hidden', q && !hay.includes(q));
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-close-widget-store]')) close();
+    const add = e.target.closest('[data-add-widget]');
+    if (add && !add.disabled) {
+      WidgetEngine.add(add.dataset.addWidget);
+      close();
+    }
+  });
+
+  if (search) search.addEventListener('input', () => filter(search.value));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+  });
+
+  return { open, close };
+})();
+
+const WidgetEngine = (() => {
+  const grid = document.getElementById('widgetGrid');
+  const workspace = document.getElementById('widgetWorkspace');
+  if (!grid || !workspace) return { add: () => {} };
+
+  let counter = 0;
+
+  const definitions = {
+    'samsung-move': {
+      icon: '🔮',
+      title: '삼성전자 왜 빨간불일까?',
+      lead: '#삼성전자 +0.37% · 오늘 신났네 ㅎㅎ',
+      price: '259,500원',
+      change: '+3.2%',
+      rows: [
+        ['09:00', '시초가 +1.5% 상승 출발'],
+        ['09:15', '1분봉 거래대금 평소 대비 4.2배 폭발'],
+        ['09:15', '5분봉 거래대금 평소 대비 4.2배 폭발'],
+        ['09:15', '개미들 인기 종목 순위 1위 등극'],
+        ['09:15', '20일선 돌파 / 이탈'],
+        ['09:15', '60일선 돌파 / 이탈'],
+        ['09:15', '60분봉 거래대금 2.1배 폭발'],
+        ['09:15', '60분봉 볼린저밴드 상단 돌파'],
+        ['09:15', '거래대금 순위 1위 등극!'],
+        ['09:15', '상승률 1위 등극! 상한가 터짐!']
+      ],
+      tags: '#삼성전자 #국장살려 #거래대금폭발 #상한가'
+    }
+  };
+
+  function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, ch => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[ch]));
+  }
+
+  function add(type) {
+    const def = definitions[type];
+    if (!def) return;
+
+    workspace.classList.add('active');
+    document.getElementById('welcome')?.style.setProperty('display', 'none');
+
+    const id = 'widget-' + (++counter);
+    const article = document.createElement('article');
+    article.className = 'strategy-widget';
+    article.dataset.widgetId = id;
+    article.dataset.widgetType = type;
+    article.style.gridColumn = 'span 6';
+    article.style.gridRow = 'span 25';
+
+    const rows = def.rows.map((row, i) => `
+      <div class="widget-timeline-row">
+        <span class="widget-time">${escapeHTML(row[0])}</span>
+        <span class="widget-event ${i >= 6 ? 'widget-highlight' : ''}">${escapeHTML(row[1])}</span>
+      </div>`).join('');
+
+    article.innerHTML = `
+      <div class="strategy-widget-head">
+        <button type="button" class="widget-drag-handle" aria-label="위젯 이동" title="드래그하여 이동">⋮⋮</button>
+        <div class="strategy-widget-title">${escapeHTML(def.icon + ' ' + def.title)}</div>
+        <div class="widget-head-actions">
+          <button type="button" data-widget-refresh title="새로고침">↻</button>
+          <button type="button" data-widget-remove title="삭제">×</button>
+        </div>
+      </div>
+      <div class="strategy-widget-body">
+        <div class="widget-lead">${escapeHTML(def.lead)}</div>
+        <div class="widget-price-line">
+          <span class="widget-price">${escapeHTML(def.price)}</span>
+          <span class="widget-change widget-up">${escapeHTML(def.change)}</span>
+        </div>
+        <div class="widget-timeline">${rows}</div>
+        <div class="widget-tagline">${escapeHTML(def.tags)}</div>
+      </div>
+      <div class="widget-foot">
+        <button type="button" data-widget-copy>복사</button>
+        <button type="button" data-widget-like>♡</button>
+        <button type="button" data-widget-dislike>♧</button>
+        <button type="button" data-widget-share>공유</button>
+      </div>
+      <div class="widget-resize" role="separator" aria-label="위젯 크기 조절" title="드래그하여 크기 조절"></div>
+    `;
+
+    grid.appendChild(article);
+    wireWidget(article);
+  }
+
+  function wireWidget(widget) {
+    const handle = widget.querySelector('.widget-drag-handle');
+    const resize = widget.querySelector('.widget-resize');
+
+    handle?.addEventListener('pointerdown', e => startDrag(e, widget));
+    resize?.addEventListener('pointerdown', e => startResize(e, widget));
+
+    widget.querySelector('[data-widget-remove]')?.addEventListener('click', () => {
+      widget.remove();
+      if (!grid.children.length) workspace.classList.remove('active');
+    });
+
+    widget.querySelector('[data-widget-refresh]')?.addEventListener('click', () => {
+      widget.animate(
+        [{ opacity: .55 }, { opacity: 1 }],
+        { duration: 180, easing: 'ease-out' }
+      );
+    });
+
+    widget.querySelector('[data-widget-copy]')?.addEventListener('click', async () => {
+      const text = getShareText(widget);
+      try {
+        await navigator.clipboard.writeText(text);
+        const btn = widget.querySelector('[data-widget-copy]');
+        const old = btn.textContent;
+        btn.textContent = '복사됨';
+        setTimeout(() => btn.textContent = old, 1000);
+      } catch {
+        window.prompt('아래 내용을 복사하세요.', text);
+      }
+    });
+
+    widget.querySelector('[data-widget-share]')?.addEventListener('click', async () => {
+      const text = getShareText(widget);
+      if (navigator.share) {
+        try { await navigator.share({ title: 'gaemiGTP', text }); } catch {}
+      } else {
+        try { await navigator.clipboard.writeText(text); alert('공유용 문구를 복사했습니다.'); }
+        catch { window.prompt('공유용 문구', text); }
+      }
+    });
+
+    widget.querySelector('[data-widget-like]')?.addEventListener('click', e => {
+      e.currentTarget.textContent = e.currentTarget.textContent === '♥' ? '♡' : '♥';
+    });
+    widget.querySelector('[data-widget-dislike]')?.addEventListener('click', e => {
+      e.currentTarget.textContent = e.currentTarget.textContent === '♧' ? '♤' : '♧';
+    });
+  }
+
+  function getShareText(widget) {
+    const title = widget.querySelector('.strategy-widget-title')?.textContent || '';
+    const lead = widget.querySelector('.widget-lead')?.textContent || '';
+    const price = widget.querySelector('.widget-price-line')?.textContent || '';
+    const rows = [...widget.querySelectorAll('.widget-timeline-row')]
+      .map(r => `${r.querySelector('.widget-time')?.textContent}  ${r.querySelector('.widget-event')?.textContent}`)
+      .join('\n');
+    const tags = widget.querySelector('.widget-tagline')?.textContent || '';
+    return [title, '', lead, '', rows, '', price.trim(), '', tags].join('\n').replace(/\n{3,}/g, '\n\n');
+  }
+
+  function startDrag(e, widget) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    widget.classList.add('is-dragging');
+    const placeholder = document.createElement('div');
+    placeholder.className = 'widget-drag-placeholder';
+    placeholder.style.gridColumn = widget.style.gridColumn || 'span 6';
+    placeholder.style.gridRow = widget.style.gridRow || 'span 25';
+    grid.insertBefore(placeholder, widget);
+    widget.style.position = 'fixed';
+    const rect = widget.getBoundingClientRect();
+    widget.style.width = rect.width + 'px';
+    widget.style.height = rect.height + 'px';
+    widget.style.left = rect.left + 'px';
+    widget.style.top = rect.top + 'px';
+    widget.style.zIndex = '200';
+
+    const offsetX = e.clientX - rect.left;
+    const offsetY = e.clientY - rect.top;
+
+    const move = ev => {
+      widget.style.left = (ev.clientX - offsetX) + 'px';
+      widget.style.top = (ev.clientY - offsetY) + 'px';
+
+      const target = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('.strategy-widget');
+      if (!target || target === widget || !grid.contains(target)) return;
+
+      const targetRect = target.getBoundingClientRect();
+      const before = ev.clientY < targetRect.top + targetRect.height / 2;
+      if (before) grid.insertBefore(placeholder, target);
+      else grid.insertBefore(placeholder, target.nextSibling);
+    };
+
+    const finish = () => {
+      widget.classList.remove('is-dragging');
+      widget.style.position = '';
+      widget.style.width = '';
+      widget.style.height = '';
+      widget.style.left = '';
+      widget.style.top = '';
+      widget.style.zIndex = '';
+      grid.insertBefore(widget, placeholder);
+      placeholder.remove();
+
+      document.removeEventListener('pointermove', move);
+      document.removeEventListener('pointerup', finish);
+      document.removeEventListener('pointercancel', finish);
+    };
+
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', finish, { once: true });
+    document.addEventListener('pointercancel', finish, { once: true });
+  }
+
+  function startResize(e, widget) {
+    e.preventDefault();
+    e.stopPropagation();
+    handlePointerCapture(e, widget);
+
+    const rect = widget.getBoundingClientRect();
+    const startW = rect.width;
+    const startH = rect.height;
+    const startX = e.clientX;
+    const startY = e.clientY;
+
+    const move = ev => {
+      const colWidth = grid.clientWidth / 12;
+      const span = Math.max(3, Math.min(12, Math.round((startW + ev.clientX - startX) / colWidth)));
+      const rows = Math.max(12, Math.min(80, Math.round((startH + ev.clientY - startY) / 22)));
+      widget.style.gridColumn = `span ${span}`;
+      widget.style.gridRow = `span ${rows}`;
+    };
+    const up = () => {
+      document.removeEventListener('pointermove', move);
+      document.removeEventListener('pointerup', up);
+    };
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', up, { once: true });
+  }
+
+  function handlePointerCapture(e, widget) {
+    try { e.target.setPointerCapture(e.pointerId); } catch {}
+  }
+
+  return { add };
+})();

@@ -39,6 +39,10 @@
       </svg>
       <span class="sb-text">검색</span>
     </button>
+    <button class="sb-icon" onclick="WidgetStore.open()" title="도움을 받으세요">
+      <span class="sb-help-mark">+</span>
+      <span class="sb-text">도움을 받으세요</span>
+    </button>
     <button class="sb-icon" onclick="alert('준비 중')" title="관심종목">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
@@ -74,6 +78,17 @@
     </div>
 
     <div class="chat-container" id="chatContainer">
+      <div class="widget-workspace" id="widgetWorkspace" aria-label="전략 위젯 영역">
+        <div class="widget-workspace-head">
+          <div>
+            <div class="widget-workspace-title">전략 위젯</div>
+            <div class="widget-workspace-sub">도움을 받으세요에서 필요한 위젯을 추가하세요.</div>
+          </div>
+          <button type="button" class="widget-add-btn" onclick="WidgetStore.open()">+ 위젯 추가</button>
+        </div>
+        <div class="widget-grid" id="widgetGrid"></div>
+      </div>
+
       <div class="chat-content" id="chatContent">
         <div class="welcome" id="welcome">
           <h1 class="welcome-title">gaemiGTP</h1>
@@ -187,6 +202,50 @@
       </div>
     </div>
   </aside>
+
+
+  <div class="widget-store" id="widgetStore" aria-hidden="true">
+    <div class="widget-store-backdrop" data-close-widget-store></div>
+    <section class="widget-store-dialog" role="dialog" aria-modal="true" aria-labelledby="widgetStoreTitle">
+      <div class="widget-store-head">
+        <div>
+          <div class="widget-store-kicker">gaemiGTP</div>
+          <h2 id="widgetStoreTitle">도움을 받으세요</h2>
+          <p>필요한 전략 위젯을 골라 가운데 화면에 추가하세요.</p>
+        </div>
+        <button type="button" class="widget-store-close" data-close-widget-store aria-label="닫기">×</button>
+      </div>
+
+      <div class="widget-store-search">
+        <span>⌕</span>
+        <input id="widgetStoreSearch" type="search" placeholder="전략 위젯 검색" autocomplete="off">
+      </div>
+
+      <div class="widget-store-section">
+        <div class="widget-store-section-title">전략 위젯</div>
+        <div class="widget-store-list" id="widgetStoreList">
+          <article class="widget-store-card" data-widget-search="삼성전자 왜 빨간불일까 삼성전자 움직임 거래대금 수급">
+            <div class="widget-store-icon">🔮</div>
+            <div class="widget-store-card-copy">
+              <strong>삼성전자 왜 빨간불일까?</strong>
+              <span>시간대별 가격·거래대금·순위 변화를 보여줍니다.</span>
+            </div>
+            <button type="button" class="widget-install-btn" data-add-widget="samsung-move">+</button>
+          </article>
+
+          <article class="widget-store-card is-coming" data-widget-search="미국은 어땠어 미국 나스닥 반도체">
+            <div class="widget-store-icon">🔮</div>
+            <div class="widget-store-card-copy">
+              <strong>미국은 어땠어?</strong>
+              <span>미국장 마감과 주도업종·종목을 보여주는 위젯.</span>
+              <small>다음 위젯에서 연결</small>
+            </div>
+            <button type="button" class="widget-install-btn" disabled title="다음 단계에서 추가">+</button>
+          </article>
+        </div>
+      </div>
+    </section>
+  </div>
 
   <script src="app.js"></script>
 </body>
