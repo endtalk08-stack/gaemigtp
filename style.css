@@ -1430,3 +1430,36 @@ body.welcome-mode .input-wrapper { display: none; }
   padding-left: 0;
   padding-right: 0;
 }
+
+/* v5: CENTER AI 메모 — 카드/표 느낌 제거 */
+.strategy-widget {
+  background: var(--bg) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.strategy-widget-head {
+  background: var(--bg) !important;
+  border-bottom: 0 !important;
+}
+.widget-tabs {
+  background: var(--bg) !important;
+  border-bottom: 0 !important;
+}
+.widget-tab.active {
+  background: var(--bg-hover);
+}
+.strategy-widget-body,
+.widget-tab-panel {
+  background: var(--bg) !important;
+}
+.widget-timeline,
+.widget-timeline-row,
+.widget-tagline,
+.widget-foot {
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+}
+.widget-foot {
+  background: var(--bg) !important;
+}
