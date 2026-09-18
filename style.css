@@ -1214,3 +1214,23 @@ body.welcome-mode .input-wrapper { display: none; }
 .widget-icon-action:hover { background: var(--bg-hover); color: var(--text); }
 .widget-icon-action.liked { color: var(--up); }
 .widget-icon-action.disliked { color: var(--down); }
+
+/* B안 구조 확정: AI 답변의 각 섹션은 실제 위젯 컨테이너로 동작한다.
+   ③ 디자인 단계 전까지 기존 내부 스타일은 유지한다. */
+.ai-answer-widget.strategy-widget {
+  margin: 0 !important;
+  min-width: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.ai-answer-widget.strategy-widget .section-header {
+  flex: 0 0 auto;
+}
+.ai-answer-widget.strategy-widget .section-footer {
+  flex: 0 0 auto;
+}

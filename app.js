@@ -440,6 +440,7 @@ function getDemoResponse(userText) {
 }
 
 let voted = false;
+let aiResponseWidgetCounter = 0;
 function castVote(type) {
   if (voted) return;
   voted = true;
@@ -466,10 +467,11 @@ async function sendMessage() {
   if (sendBtn) sendBtn.disabled = true;
   isStreaming = true;
 
-  // B안: AI의 답변 자체가 위젯들의 묶음이 된다.
-  // 별도의 AI 답변 블록/아바타를 만들지 않고, 검색 결과를 CENTER 위젯으로 바로 배치한다.
+  // B안 확정 구조: 별도의 AI 답변 블록/아바타는 만들지 않는다.
+  // AI가 만든 각각의 답변 섹션이 곧 하나의 독립 위젯이 된다.
   const msg = document.createElement('div');
   msg.className = 'message ai-response-message';
+
   const body = document.createElement('div');
   body.className = 'ai-widget-grid';
   body.innerHTML = '<div class="ai-widget-loading"><span></span><span></span><span></span></div>';
@@ -481,9 +483,12 @@ async function sendMessage() {
   await sleep(400);
   body.innerHTML = fullResponse;
 
-  // getDemoResponse()의 각 .section이 곧 하나의 AI 위젯이다.
+  // 기존 AI 답변의 각 섹션을 실제 위젯으로 승격한다.
+  // 내용과 현재 디자인은 그대로 두고, 구조/컨테이너 역할만 위젯으로 바꾼다.
   body.querySelectorAll('.section').forEach(section => {
-    section.classList.add('ai-answer-widget');
+    section.classList.add('strategy-widget', 'ai-answer-widget');
+    section.dataset.widgetId = 'ai-response-widget-' + (++aiResponseWidgetCounter);
+    section.dataset.widgetSource = 'ai-response';
   });
 
   body.style.opacity = '0';
