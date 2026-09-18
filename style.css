@@ -1254,3 +1254,25 @@ body.welcome-mode .input-wrapper { display: none; }
 .ai-answer-widget.strategy-widget .section-footer {
   flex: 0 0 auto;
 }
+
+/* B안 ②: 검색 결과는 별도 AI 답변 없이 우리 위젯 자체로 표시 */
+.ai-widget-message {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+}
+.ai-widget-message > .ai-widget-grid {
+  width: 100%;
+  display: block;
+}
+.ai-widget-message .strategy-widget {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  box-sizing: border-box;
+}
+.ai-widget-empty {
+  width: 100%;
+  padding: 24px 0;
+  color: var(--text-muted);
+}

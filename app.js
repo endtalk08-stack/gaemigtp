@@ -467,10 +467,10 @@ async function sendMessage() {
   if (sendBtn) sendBtn.disabled = true;
   isStreaming = true;
 
-  // B안 확정 구조: 별도의 AI 답변 블록/아바타는 만들지 않는다.
-  // AI가 만든 각각의 답변 섹션이 곧 하나의 독립 위젯이 된다.
+  // B안 ②: 별도의 AI 답변 영역은 만들지 않는다.
+  // 검색 결과를 바로 '우리 위젯' 하나로 표시한다.
   const msg = document.createElement('div');
-  msg.className = 'message ai-response-message';
+  msg.className = 'message ai-widget-message';
 
   const body = document.createElement('div');
   body.className = 'ai-widget-grid';
@@ -479,26 +479,33 @@ async function sendMessage() {
   if (chatContent) chatContent.appendChild(msg);
   if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
 
-  const fullResponse = getDemoResponse(text);
-  await sleep(400);
-  body.innerHTML = fullResponse;
+  await sleep(350);
 
-  // 기존 AI 답변의 각 섹션을 실제 위젯으로 승격한다.
-  // 내용과 현재 디자인은 그대로 두고, 구조/컨테이너 역할만 위젯으로 바꾼다.
-  body.querySelectorAll('.section').forEach(section => {
-    section.classList.add('strategy-widget', 'ai-answer-widget');
-    section.dataset.widgetId = 'ai-response-widget-' + (++aiResponseWidgetCounter);
-    section.dataset.widgetSource = 'ai-response';
-  });
+  // 현재 1차 연결 대상: 삼성전자 → 기존에 만든 우리 위젯 1개.
+  const normalized = text.replace(/\s+/g, '').toLowerCase();
+  const isSamsung = normalized.includes('삼성전자') || normalized.includes('samsung');
+  const widget = isSamsung && typeof WidgetEngine !== 'undefined'
+    ? WidgetEngine.create('samsung-move')
+    : null;
+
+  body.innerHTML = '';
+  if (widget) {
+    body.appendChild(widget);
+  } else {
+    const empty = document.createElement('div');
+    empty.className = 'ai-widget-empty';
+    empty.textContent = '이 종목의 위젯을 준비 중입니다.';
+    body.appendChild(empty);
+  }
 
   body.style.opacity = '0';
-  body.style.transition = 'opacity 0.3s';
-  await sleep(50);
-  body.style.opacity = '1';
+  body.style.transition = 'opacity 0.25s';
+  requestAnimationFrame(() => { body.style.opacity = '1'; });
 
   isStreaming = false;
   if (sendBtn && input) sendBtn.disabled = input.value.trim() === '';
 }
+
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 const Panel = (() => {
