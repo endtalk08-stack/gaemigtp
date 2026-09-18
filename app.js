@@ -621,7 +621,7 @@ const WidgetStore = (() => {
         btn.textContent = '설치됨';
         btn.classList.add('is-installed');
         btn.disabled = false;
-        btn.dataset.remove-widget = type;
+        btn.dataset.removeWidget = type;
         btn.removeAttribute('data-add-widget');
       }
       installedList.appendChild(clone);
