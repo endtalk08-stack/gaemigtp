@@ -1480,3 +1480,31 @@ body.welcome-mode .input-wrapper { display: none; }
   width: fit-content;
   max-width: 240px;
 }
+
+/* FINAL ③-1: title pill is intentionally independent from the removed widget frame. */
+.chat-content .message.ai-widget-message .strategy-widget-head {
+  border: 0 !important;
+  border-bottom: 0 !important;
+  background: transparent !important;
+}
+.chat-content .message.ai-widget-message .strategy-widget-title,
+.chat-content .message.ai-widget-message .widget-tab.active {
+  display: inline-flex !important;
+  align-items: center !important;
+  width: fit-content !important;
+  max-width: 240px !important;
+  min-height: 26px !important;
+  box-sizing: border-box !important;
+  padding: 5px 9px !important;
+  margin: 0 !important;
+  background: var(--bg-input) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 7px !important;
+  color: var(--text) !important;
+}
+.chat-content .message.ai-widget-message .strategy-widget-title {
+  flex: 0 1 auto !important;
+}
+.chat-content .message.ai-widget-message .widget-tab.active {
+  flex: 0 0 auto !important;
+}
