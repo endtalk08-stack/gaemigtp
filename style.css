@@ -1062,3 +1062,58 @@ body.welcome-mode .input-wrapper { display: none; }
 .widget-lead {
   margin-bottom: 10px;
 }
+
+/* v4: typography and divider alignment */
+.strategy-widget,
+.strategy-widget * {
+  font-family: inherit !important;
+  font-size: 11px !important;
+  font-weight: 400 !important;
+}
+.strategy-widget-title,
+.widget-lead,
+.widget-lead-line,
+.widget-time,
+.widget-event,
+.widget-highlight,
+.widget-tagline,
+.widget-foot,
+.widget-foot button,
+.widget-tab {
+  font-size: 11px !important;
+  font-weight: 400 !important;
+}
+
+/* Intro lines use the exact same row rhythm as the data rows. */
+.widget-lead {
+  margin: 0 0 0 0 !important;
+}
+.widget-lead-line {
+  height: 32px !important;
+  min-height: 32px !important;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Every data row keeps the same height and divider. */
+.widget-timeline-row {
+  height: 32px !important;
+  min-height: 32px !important;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+/* Bottom content gets the same visual rule instead of floating without a line. */
+.widget-tagline {
+  margin-top: 0 !important;
+  padding: 12px 0 !important;
+  border-top: 1px solid var(--border) !important;
+  border-bottom: 1px solid var(--border) !important;
+  line-height: 32px !important;
+  min-height: 56px;
+  box-sizing: border-box;
+}
+.widget-foot {
+  border-top: 1px solid var(--border) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
