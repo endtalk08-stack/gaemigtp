@@ -1356,3 +1356,42 @@ body.welcome-mode .input-wrapper { display: none; }
 .widget-picker-item:disabled { opacity: .42; cursor: default; }
 .widget-picker-item small { color: var(--text-muted); font-size: 10px; flex: 0 0 auto; }
 .widget-picker-item span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ③-1: CENTER AI 답변을 메모장처럼 보이게 한다.
+   위젯의 기능/구조는 유지하고, 카드 테두리와 본문 가로줄만 제거한다. */
+.chat-content .message .strategy-widget {
+  background: var(--bg);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.chat-content .message .strategy-widget-head {
+  background: var(--bg);
+  border-bottom: 0;
+}
+.chat-content .message .strategy-widget-body {
+  background: var(--bg);
+}
+.chat-content .message .widget-timeline {
+  border-top: 0;
+}
+.chat-content .message .widget-timeline-row {
+  border-bottom: 0;
+}
+.chat-content .message .widget-tagline {
+  border-top: 0;
+  border-bottom: 0;
+}
+.chat-content .message .widget-foot {
+  border-top: 0;
+  background: var(--bg);
+}
+.chat-content .message .widget-tab-panels,
+.chat-content .message .widget-tab-panel {
+  background: var(--bg);
+}
+/* 제목 탭 영역만 콘텐츠와 구분되도록 최소한의 기준선 유지 */
+.chat-content .message .widget-tabs {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
