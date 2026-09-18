@@ -1395,3 +1395,38 @@ body.welcome-mode .input-wrapper { display: none; }
   background: var(--bg);
   border-bottom: 1px solid var(--border);
 }
+
+/* ③-1 clean memo pass: CENTER widgets have no card/frame or internal horizontal rules. */
+.chat-content .message.ai-widget-message .strategy-widget,
+.chat-content .message.ai-widget-message .strategy-widget-head,
+.chat-content .message.ai-widget-message .strategy-widget-body,
+.chat-content .message.ai-widget-message .widget-timeline,
+.chat-content .message.ai-widget-message .widget-lead,
+.chat-content .message.ai-widget-message .widget-tagline,
+.chat-content .message.ai-widget-message .widget-foot,
+.chat-content .message.ai-widget-message .widget-tab-panels,
+.chat-content .message.ai-widget-message .widget-tab-panel {
+  background: var(--bg) !important;
+  box-shadow: none !important;
+}
+.chat-content .message.ai-widget-message .strategy-widget {
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+.chat-content .message.ai-widget-message .strategy-widget-head {
+  border-bottom: 0 !important;
+}
+.chat-content .message.ai-widget-message .widget-timeline {
+  border-top: 0 !important;
+}
+.chat-content .message.ai-widget-message .widget-lead-line,
+.chat-content .message.ai-widget-message .widget-timeline-row,
+.chat-content .message.ai-widget-message .widget-tagline,
+.chat-content .message.ai-widget-message .widget-foot {
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+}
+.chat-content .message.ai-widget-message .widget-foot {
+  padding-left: 0;
+  padding-right: 0;
+}
