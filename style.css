@@ -1012,3 +1012,20 @@ body.welcome-mode .input-wrapper { display: none; }
   opacity: .55;
   min-width: 0;
 }
+
+/* v2: unified widget typography + clean rows */
+.strategy-widget-title{font-size:14px;font-weight:600}
+.widget-lead{margin-bottom:10px;font-size:13px;font-weight:400;line-height:1.5}
+.widget-lead-line{height:24px;display:flex;align-items:center;gap:4px}
+.widget-price-line{display:none!important}
+.widget-timeline-row{height:32px;min-height:32px;border-bottom:0;font-size:12px;line-height:1}
+.widget-time{font-size:11px}
+.widget-event,.widget-highlight{font-weight:400}
+.widget-tagline{border-top:0;padding-top:8px;font-size:11px;font-weight:400}
+.widget-head-actions button[data-widget-add-tab]{font-size:19px;width:30px;height:30px;line-height:1}
+.widget-tabs{height:32px;min-height:32px;display:flex;align-items:center;gap:3px;padding:0 8px;border-bottom:1px solid var(--border);overflow-x:auto}
+.widget-tab{border:0;background:transparent;color:var(--text-muted);border-radius:7px;padding:5px 9px;cursor:pointer;font:inherit;font-size:11px;white-space:nowrap}
+.widget-tab.active{background:var(--bg-hover);color:var(--text)}
+.widget-tab-panels{flex:1;min-height:0;overflow:auto}
+.widget-tab-panel{display:none;min-height:100%;padding:12px;box-sizing:border-box}
+.widget-tab-panel.active{display:block}

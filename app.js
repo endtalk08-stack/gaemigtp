@@ -662,17 +662,17 @@ const WidgetEngine = (() => {
     article.innerHTML = `
       <div class="strategy-widget-head">
         <button type="button" class="widget-drag-handle" aria-label="위젯 이동" title="드래그하여 이동">⋮⋮</button>
-        <div class="strategy-widget-title">${escapeHTML(def.icon + ' ' + def.title)}</div>
+        <div class="strategy-widget-title">${escapeHTML(def.title)}</div>
         <div class="widget-head-actions">
+          <button type="button" data-widget-add-tab title="이 위젯 안에 추가">+</button>
           <button type="button" data-widget-refresh title="새로고침">↻</button>
           <button type="button" data-widget-remove title="삭제">×</button>
         </div>
       </div>
       <div class="strategy-widget-body">
-        <div class="widget-lead">${escapeHTML(def.lead)}</div>
-        <div class="widget-price-line">
-          <span class="widget-price">${escapeHTML(def.price)}</span>
-          <span class="widget-change widget-up">${escapeHTML(def.change)}</span>
+        <div class="widget-lead">
+          <div class="widget-lead-line">#삼성전자 <span class="widget-up">+0.37%</span></div>
+          <div class="widget-lead-line">오늘 신났네 ㅎㅎ</div>
         </div>
         <div class="widget-timeline">${rows}</div>
         <div class="widget-tagline">${escapeHTML(def.tags)}</div>
@@ -690,6 +690,46 @@ const WidgetEngine = (() => {
     wireWidget(article);
   }
 
+
+  function addTabToWidget(widget) {
+    const def = definitions[widget.dataset.widgetType];
+    if (!def) return;
+    let tabs = widget.querySelector('.widget-tabs');
+    let panels = widget.querySelector('.widget-tab-panels');
+
+    if (!tabs) {
+      const body = widget.querySelector('.strategy-widget-body');
+      tabs = document.createElement('div');
+      tabs.className = 'widget-tabs';
+      tabs.innerHTML = '<button type="button" class="widget-tab active">삼성전자 분석</button>';
+      panels = document.createElement('div');
+      panels.className = 'widget-tab-panels';
+      const first = document.createElement('div');
+      first.className = 'widget-tab-panel active';
+      first.innerHTML = body.innerHTML;
+      panels.appendChild(first);
+      body.replaceWith(panels);
+      widget.querySelector('.strategy-widget-head').insertAdjacentElement('afterend', tabs);
+    }
+
+    const n = tabs.querySelectorAll('.widget-tab').length + 1;
+    const tab = document.createElement('button');
+    tab.type='button'; tab.className='widget-tab'; tab.textContent=`분석 ${n}`;
+    const panel=document.createElement('div');
+    panel.className='widget-tab-panel';
+    panel.innerHTML=`<div class="widget-lead"><div class="widget-lead-line">#삼성전자 <span class="widget-up">+0.37%</span></div><div class="widget-lead-line">오늘 신났네 ㅎㅎ</div></div>
+      <div class="widget-timeline">${def.rows.map((r,i)=>`<div class="widget-timeline-row"><span class="widget-time">${r[0]}</span><span class="widget-event ${i>=6?'widget-highlight':''}">${r[1]}</span></div>`).join('')}</div>
+      <div class="widget-tagline">${def.tags}</div>`;
+    tabs.appendChild(tab); panels.appendChild(panel);
+
+    tab.addEventListener('click',()=>{
+      tabs.querySelectorAll('.widget-tab').forEach(x=>x.classList.remove('active'));
+      panels.querySelectorAll('.widget-tab-panel').forEach(x=>x.classList.remove('active'));
+      tab.classList.add('active'); panel.classList.add('active');
+    });
+    tab.click();
+  }
+
   function wireWidget(widget) {
     const handle = widget.querySelector('.widget-drag-handle');
     const resize = widget.querySelector('.widget-resize');
@@ -701,6 +741,8 @@ const WidgetEngine = (() => {
       widget.remove();
       if (!grid.children.length) workspace.classList.remove('active');
     });
+
+    widget.querySelector('[data-widget-add-tab]')?.addEventListener('click', () => addTabToWidget(widget));
 
     widget.querySelector('[data-widget-refresh]')?.addEventListener('click', () => {
       widget.animate(
