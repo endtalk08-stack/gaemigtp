@@ -750,10 +750,36 @@ const WidgetEngine = (() => {
         <div class="widget-tagline">${escapeHTML(def.tags)}</div>
       </div>
       <div class="widget-foot">
-        <button type="button" data-widget-copy>복사</button>
-        <button type="button" data-widget-like>♡</button>
-        <button type="button" data-widget-dislike>♧</button>
-        <button type="button" data-widget-share>공유</button>
+        <button type="button" class="widget-icon-action" data-widget-copy title="복사" aria-label="복사">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+        </button>
+        <button type="button" class="widget-icon-action" data-widget-refresh-action title="새로고침" aria-label="새로고침">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/>
+            <polyline points="1 20 1 14 7 14"/>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+          </svg>
+        </button>
+        <button type="button" class="widget-icon-action" data-widget-like title="좋아요" aria-label="좋아요">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+          </svg>
+        </button>
+        <button type="button" class="widget-icon-action" data-widget-dislike title="싫어요" aria-label="싫어요">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/>
+          </svg>
+        </button>
+        <button type="button" class="widget-icon-action" data-widget-share title="공유" aria-label="공유">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+            <polyline points="16 6 12 2 8 6"/>
+            <line x1="12" y1="2" x2="12" y2="15"/>
+          </svg>
+        </button>
       </div>
       <div class="widget-resize" role="separator" aria-label="위젯 크기 조절"></div>
     `;
@@ -798,17 +824,17 @@ const WidgetEngine = (() => {
       widget.remove();
     });
 
-    widget.querySelector('[data-widget-refresh]')?.addEventListener('click', () => {
+    const refreshWidget = () => {
       widget.animate([{opacity:.55},{opacity:1}], {duration:180,easing:'ease-out'});
-    });
+    };
+    widget.querySelector('[data-widget-refresh]')?.addEventListener('click', refreshWidget);
+    widget.querySelector('[data-widget-refresh-action]')?.addEventListener('click', refreshWidget);
 
     widget.querySelector('[data-widget-copy]')?.addEventListener('click', async () => {
       const text = getShareText(widget);
       try {
         await navigator.clipboard.writeText(text);
-        const btn=widget.querySelector('[data-widget-copy]');
-        const old=btn.textContent; btn.textContent='복사됨';
-        setTimeout(()=>btn.textContent=old,1000);
+        showToast('복사됨');
       } catch { window.prompt('아래 내용을 복사하세요.', text); }
     });
 

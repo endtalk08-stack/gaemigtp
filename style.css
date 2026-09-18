@@ -1188,3 +1188,29 @@ body.welcome-mode .input-wrapper { display: none; }
 @media (max-width: 900px) {
   .ai-answer-widget { grid-column: 1 / -1; }
 }
+
+/* v6: widget footer actions use the same icon treatment as the existing site actions. */
+.widget-foot {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 8px 0;
+}
+.widget-icon-action {
+  width: 28px;
+  height: 28px;
+  padding: 6px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.widget-icon-action:hover { background: var(--bg-hover); color: var(--text); }
+.widget-icon-action.liked { color: var(--up); }
+.widget-icon-action.disliked { color: var(--down); }
