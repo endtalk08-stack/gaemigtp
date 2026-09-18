@@ -483,9 +483,10 @@ async function sendMessage() {
 
   // 현재 1차 연결 대상: 삼성전자 → 기존에 만든 우리 위젯 1개.
   const normalized = text.replace(/\s+/g, '').toLowerCase();
-  const isSamsung = normalized.includes('삼성전자') || normalized.includes('samsung');
-  const widget = isSamsung && typeof WidgetEngine !== 'undefined'
-    ? WidgetEngine.create('samsung-move')
+  const stockName = normalized.includes('삼성전자') || normalized.includes('samsung') ? '삼성전자'
+    : (normalized.includes('하이닉스') || normalized.includes('skhynix')) ? 'SK하이닉스' : '';
+  const widget = stockName && typeof WidgetEngine !== 'undefined'
+    ? WidgetEngine.create('samsung-move', stockName)
     : null;
 
   body.innerHTML = '';
@@ -701,7 +702,7 @@ const WidgetStore = (() => {
 const WidgetEngine = (() => {
   const definitions = {
     'samsung-move': {
-      title: '삼성전자 왜 빨간불일까?',
+      title: '왜 빨간불일까?',
       stock: '삼성전자',
       lead: ['#삼성전자 +0.37%', '오늘 신났네 ㅎㅎ'],
       rows: [
@@ -717,6 +718,51 @@ const WidgetEngine = (() => {
         ['09:15', '상승률 1위 등극! 상한가 터짐!']
       ],
       tags: '#삼성전자 #국장살려 #거래대금폭발 #상한가'
+    },
+    'big-money': {
+      title: '큰손들은 뭐하고 있어?',
+      stock: '삼성전자',
+      lead: ['외국인 +48만 · 기관 +21만 · 개인 -69만', '외국인·기관은 담고, 개인은 팔고 있어.'],
+      rows: [
+        ['외국인', '+48만 순매수'],
+        ['기관', '+21만 순매수'],
+        ['개인', '-69만 순매도'],
+        ['같이 움직인', 'SK하이닉스 +2.1%'],
+        ['같이 움직인', '한미반도체 +1.8%']
+      ],
+      tags: '#수급 #외국인 #기관 #관련주'
+    },
+    'calendar': {
+      title: '다가오는 일정',
+      stock: '삼성전자',
+      lead: ['오늘 밤', '조용함'],
+      rows: [
+        ['09/17(목)', '미국 FOMC 기준금리 결정 (03:00)'],
+        ['09/18(금)', '주요 경제지표 발표'],
+        ['이번 주', '반도체 업종 주요 이벤트 확인']
+      ],
+      tags: '#일정 #FOMC #이벤트'
+    },
+    'volume': {
+      title: '거래대금 폭발',
+      stock: '삼성전자',
+      lead: ['거래대금 순위', '삼성전자 4.2배'],
+      rows: [
+        ['1', '삼성전자 · 4.2배'],
+        ['2', 'SK하이닉스 · 3.1배'],
+        ['3', '우리로 · 2.8배']
+      ],
+      tags: '#거래대금 #순위 #수급'
+    },
+    'vote': {
+      title: '내일 어디로 튈까?',
+      stock: '삼성전자',
+      lead: ['상승 68%', '하락 32%'],
+      rows: [
+        ['현재', '상승 전망 68%'],
+        ['현재', '하락 전망 32%']
+      ],
+      tags: '#투표 #상승전망 #하락전망'
     }
   };
 
@@ -728,14 +774,41 @@ const WidgetEngine = (() => {
     }[ch]));
   }
 
-  function create(type) {
-    const def = definitions[type];
-    if (!def) return null;
+  function create(type, stockNameOverride = '') {
+    const base = definitions[type];
+    if (!base) return null;
+    const stockName = stockNameOverride || base.stock || '삼성전자';
+    const market = stockData[stockName];
+    const def = market ? { ...base, stock: stockName } : base;
+    if (market) {
+      if (type === 'samsung-move') {
+        def.lead = [`#${stockName} ${market.change || ''}`.trim(), market.why_title];
+        def.rows = [[market.why_time1, market.why_text1], [market.why_time2, market.why_text2]];
+        def.tags = `#${stockName} #거래대금 #시장움직임`;
+      } else if (type === 'big-money') {
+        def.lead = [`외국인 ${market.big_foreign_val} · 기관 ${market.big_inst_val} · 개인 ${market.big_retail_val}`, market.big_memo.replace(/<br>/g, ' ')];
+        def.rows = [['외국인', `${market.big_foreign_val} 순매수`], ['기관', `${market.big_inst_val} 순매수`], ['개인', `${market.big_retail_val} 순매도`], ['같이 움직인', `${market.related1_name} ${market.related1_change}`], ['같이 움직인', `${market.related2_name} ${market.related2_change}`]];
+        def.tags = `#${stockName} #수급 #외국인 #기관`;
+      } else if (type === 'calendar') {
+        def.lead = [market.cal_date1.replace(/^🌙|^🔥|^📌/,'').trim(), market.cal_event1];
+        def.rows = [[market.cal_date1, market.cal_event1], [market.cal_date2, market.cal_event2]];
+        def.tags = `#${stockName} #일정 #이벤트`;
+      } else if (type === 'volume') {
+        def.lead = ['거래대금 순위', market.vol_rank1];
+        def.rows = [['1', market.vol_rank1], ['2', market.vol_rank2], ['3', market.vol_rank3]];
+        def.tags = `#${stockName} #거래대금 #순위`;
+      } else if (type === 'vote') {
+        def.lead = [`상승 ${market.vote_up}`, `하락 ${market.vote_down}`];
+        def.rows = [['현재', `상승 전망 ${market.vote_up}`], ['현재', `하락 전망 ${market.vote_down}`]];
+        def.tags = `#${stockName} #투표`;
+      }
+    }
 
     const article = document.createElement('article');
     article.className = 'strategy-widget';
     article.dataset.widgetId = 'response-widget-' + (++counter);
     article.dataset.widgetType = type;
+    article.dataset.stock = stockName;
 
     const rows = def.rows.map(row => `
       <div class="widget-timeline-row">
@@ -748,14 +821,15 @@ const WidgetEngine = (() => {
         <button type="button" class="widget-drag-handle" aria-label="위젯 이동" title="드래그하여 이동">⋮⋮</button>
         <div class="strategy-widget-title">${escapeHTML(def.title)}</div>
         <div class="widget-head-actions">
-          <button type="button" data-widget-add-tab title="이 위젯 안에 추가">+</button>
+          <button type="button" data-widget-add-tab title="위젯 추가">+</button>
           <button type="button" data-widget-refresh title="새로고침">↻</button>
-          <button type="button" data-widget-remove title="삭제">×</button>
+          <button type="button" data-widget-remove title="위젯 삭제">×</button>
         </div>
       </div>
+      <div class="widget-picker" hidden></div>
       <div class="strategy-widget-body">
         <div class="widget-lead">
-          <div class="widget-lead-line">${escapeHTML(def.lead[0]).replace('+0.37%', '<span class="widget-up">+0.37%</span>')}</div>
+          <div class="widget-lead-line">${escapeHTML(def.lead[0]).replace(/([+-]\d+(?:\.\d+)?%)/g, '<span class="widget-up">$1</span>')}</div>
           <div class="widget-lead-line">${escapeHTML(def.lead[1])}</div>
         </div>
         <div class="widget-timeline">${rows}</div>
@@ -828,8 +902,9 @@ const WidgetEngine = (() => {
     handle?.addEventListener('pointerdown', e => startDrag(e, widget));
     resize?.addEventListener('pointerdown', e => startResize(e, widget));
 
-    widget.querySelector('[data-widget-add-tab]')?.addEventListener('click', () => {
-      addTabToWidget(widget);
+    widget.querySelector('[data-widget-add-tab]')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleWidgetPicker(widget);
     });
 
     widget.querySelector('[data-widget-remove]')?.addEventListener('click', () => {
@@ -868,42 +943,162 @@ const WidgetEngine = (() => {
     });
   }
 
-  function addTabToWidget(widget) {
-    const def = definitions[widget.dataset.widgetType];
-    if (!def) return;
-    let tabs=widget.querySelector('.widget-tabs');
-    let panels=widget.querySelector('.widget-tab-panels');
-
-    if (!tabs) {
-      const body=widget.querySelector('.strategy-widget-body');
-      tabs=document.createElement('div');
-      tabs.className='widget-tabs';
-      tabs.innerHTML='<button type="button" class="widget-tab active">삼성전자 분석</button>';
-      panels=document.createElement('div');
-      panels.className='widget-tab-panels';
-      const first=document.createElement('div');
-      first.className='widget-tab-panel active';
-      first.innerHTML=body.innerHTML;
-      panels.appendChild(first);
-      body.replaceWith(panels);
-      widget.querySelector('.strategy-widget-head').insertAdjacentElement('afterend',tabs);
+  function getDefinition(type, stockName) {
+    const base = definitions[type];
+    if (!base) return null;
+    const market = stockData[stockName];
+    const def = market ? { ...base, stock: stockName } : { ...base };
+    if (!market) return def;
+    if (type === 'samsung-move') {
+      def.lead = [`#${stockName} ${market.change || ''}`.trim(), market.why_title];
+      def.rows = [[market.why_time1, market.why_text1], [market.why_time2, market.why_text2]];
+      def.tags = `#${stockName} #거래대금 #시장움직임`;
+    } else if (type === 'big-money') {
+      def.lead = [`외국인 ${market.big_foreign_val} · 기관 ${market.big_inst_val} · 개인 ${market.big_retail_val}`, market.big_memo.replace(/<br>/g, ' ')];
+      def.rows = [['외국인', `${market.big_foreign_val} 순매수`], ['기관', `${market.big_inst_val} 순매수`], ['개인', `${market.big_retail_val} 순매도`], ['같이 움직인', `${market.related1_name} ${market.related1_change}`], ['같이 움직인', `${market.related2_name} ${market.related2_change}`]];
+      def.tags = `#${stockName} #수급 #외국인 #기관`;
+    } else if (type === 'calendar') {
+      def.lead = [market.cal_date1.replace(/^🌙|^🔥|^📌/,'').trim(), market.cal_event1];
+      def.rows = [[market.cal_date1, market.cal_event1], [market.cal_date2, market.cal_event2]];
+      def.tags = `#${stockName} #일정 #이벤트`;
+    } else if (type === 'volume') {
+      def.lead = ['거래대금 순위', market.vol_rank1];
+      def.rows = [['1', market.vol_rank1], ['2', market.vol_rank2], ['3', market.vol_rank3]];
+      def.tags = `#${stockName} #거래대금 #순위`;
+    } else if (type === 'vote') {
+      def.lead = [`상승 ${market.vote_up}`, `하락 ${market.vote_down}`];
+      def.rows = [['현재', `상승 전망 ${market.vote_up}`], ['当前', `하락 전망 ${market.vote_down}`]];
+      def.rows[1][0] = '현재';
+      def.tags = `#${stockName} #투표`;
     }
+    return def;
+  }
 
-    const n=tabs.querySelectorAll('.widget-tab').length+1;
-    const tab=document.createElement('button');
-    tab.type='button'; tab.className='widget-tab'; tab.textContent=`분석 ${n}`;
-    const panel=document.createElement('div');
-    panel.className='widget-tab-panel';
-    panel.innerHTML=`<div class="widget-lead"><div class="widget-lead-line">#삼성전자 <span class="widget-up">+0.37%</span></div><div class="widget-lead-line">오늘 신났네 ㅎㅎ</div></div>
-      <div class="widget-timeline">${def.rows.map(r=>`<div class="widget-timeline-row"><span class="widget-time">${escapeHTML(r[0])}</span><span class="widget-event">${escapeHTML(r[1])}</span></div>`).join('')}</div>
+  function panelHTML(def) {
+    const rows = def.rows.map(row => `
+      <div class="widget-timeline-row">
+        <span class="widget-time">${escapeHTML(row[0])}</span>
+        <span class="widget-event">${escapeHTML(row[1])}</span>
+      </div>`).join('');
+    const lead0 = escapeHTML(def.lead[0]).replace(/([+-]\d+(?:\.\d+)?%)/g, '<span class="widget-up">$1</span>');
+    return `
+      <div class="widget-lead">
+        <div class="widget-lead-line">${lead0}</div>
+        <div class="widget-lead-line">${escapeHTML(def.lead[1])}</div>
+      </div>
+      <div class="widget-timeline">${rows}</div>
       <div class="widget-tagline">${escapeHTML(def.tags)}</div>`;
-    tabs.appendChild(tab); panels.appendChild(panel);
-    tab.addEventListener('click',()=>{
-      tabs.querySelectorAll('.widget-tab').forEach(x=>x.classList.remove('active'));
-      panels.querySelectorAll('.widget-tab-panel').forEach(x=>x.classList.remove('active'));
-      tab.classList.add('active'); panel.classList.add('active');
+  }
+
+  function ensureTabs(widget) {
+    let tabs = widget.querySelector('.widget-tabs');
+    let panels = widget.querySelector('.widget-tab-panels');
+    if (tabs && panels) return { tabs, panels };
+
+    const def = getDefinition(widget.dataset.widgetType, widget.dataset.stock || '삼성전자');
+    const body = widget.querySelector('.strategy-widget-body');
+    const title = widget.querySelector('.strategy-widget-title');
+    if (!def || !body || !title) return {};
+
+    tabs = document.createElement('div');
+    tabs.className = 'widget-tabs';
+    tabs.innerHTML = `<button type="button" class="widget-tab active" data-widget-tab="${escapeHTML(widget.dataset.widgetType)}"><span class="widget-tab-label">${escapeHTML(def.title)}</span><span class="widget-tab-close" data-tab-close aria-label="삭제">×</span></button>`;
+
+    panels = document.createElement('div');
+    panels.className = 'widget-tab-panels';
+    const first = document.createElement('div');
+    first.className = 'widget-tab-panel active';
+    first.dataset.widgetType = widget.dataset.widgetType;
+    first.innerHTML = body.innerHTML;
+    panels.appendChild(first);
+
+    body.replaceWith(panels);
+    title.replaceWith(tabs);
+    wireTabButtons(widget);
+    return { tabs, panels };
+  }
+
+  function wireTabButtons(widget) {
+    const tabs = widget.querySelector('.widget-tabs');
+    const panels = widget.querySelector('.widget-tab-panels');
+    if (!tabs || !panels) return;
+    tabs.querySelectorAll('.widget-tab').forEach(tab => {
+      if (tab.dataset.wired) return;
+      tab.dataset.wired = '1';
+      tab.addEventListener('click', e => {
+        if (e.target.closest('[data-tab-close]')) return;
+        activateTab(widget, tab);
+      });
+      tab.querySelector('[data-tab-close]')?.addEventListener('click', e => {
+        e.stopPropagation();
+        removeTab(widget, tab.dataset.widgetTab);
+      });
     });
-    tab.click();
+  }
+
+  function activateTab(widget, tab) {
+    const type = tab.dataset.widgetTab;
+    widget.querySelectorAll('.widget-tab').forEach(t => t.classList.toggle('active', t === tab));
+    widget.querySelectorAll('.widget-tab-panel').forEach(p => p.classList.toggle('active', p.dataset.widgetType === type));
+  }
+
+  function removeTab(widget, type) {
+    const tabs = widget.querySelector('.widget-tabs');
+    const panels = widget.querySelector('.widget-tab-panels');
+    if (!tabs || !panels) return;
+    const tab = tabs.querySelector(`.widget-tab[data-widget-tab="${CSS.escape(type)}"]`);
+    const panel = panels.querySelector(`.widget-tab-panel[data-widget-type="${CSS.escape(type)}"]`);
+    const count = tabs.querySelectorAll('.widget-tab').length;
+    if (count <= 1) {
+      widget.remove();
+      return;
+    }
+    const wasActive = tab?.classList.contains('active');
+    tab?.remove();
+    panel?.remove();
+    if (wasActive) activateTab(widget, tabs.querySelector('.widget-tab'));
+  }
+
+  function toggleWidgetPicker(widget) {
+    let picker = widget.querySelector('.widget-picker');
+    if (!picker) return;
+    const isOpen = !picker.hidden;
+    document.querySelectorAll('.widget-picker').forEach(p => p.hidden = true);
+    if (isOpen) return;
+    const current = new Set([...widget.querySelectorAll('.widget-tab')].map(t => t.dataset.widgetTab));
+    if (!current.size) current.add(widget.dataset.widgetType);
+    picker.innerHTML = Object.entries(definitions).map(([type, def]) => `
+      <button type="button" class="widget-picker-item" data-picker-widget="${type}" ${current.has(type) ? 'disabled' : ''}>
+        <span>${escapeHTML(def.title)}</span>
+        <small>${current.has(type) ? '추가됨' : '추가'}</small>
+      </button>`).join('');
+    picker.hidden = false;
+    picker.querySelectorAll('[data-picker-widget]').forEach(btn => btn.addEventListener('click', () => {
+      addTabToWidget(widget, btn.dataset.pickerWidget);
+      picker.hidden = true;
+    }));
+  }
+
+  function addTabToWidget(widget, type) {
+    const def = getDefinition(type, widget.dataset.stock || '삼성전자');
+    if (!def) return;
+    const { tabs, panels } = ensureTabs(widget);
+    if (!tabs || !panels || tabs.querySelector(`[data-widget-tab="${CSS.escape(type)}"]`)) return;
+
+    const tab = document.createElement('button');
+    tab.type = 'button';
+    tab.className = 'widget-tab';
+    tab.dataset.widgetTab = type;
+    tab.innerHTML = `<span class="widget-tab-label">${escapeHTML(def.title)}</span><span class="widget-tab-close" data-tab-close aria-label="삭제">×</span>`;
+
+    const panel = document.createElement('div');
+    panel.className = 'widget-tab-panel';
+    panel.dataset.widgetType = type;
+    panel.innerHTML = panelHTML(def);
+    tabs.appendChild(tab);
+    panels.appendChild(panel);
+    wireTabButtons(widget);
+    activateTab(widget, tab);
   }
 
   function getShareText(widget) {
