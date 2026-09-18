@@ -482,6 +482,15 @@ async function sendMessage() {
   const fullResponse = getDemoResponse(text);
   await sleep(400);
   body.innerHTML = fullResponse;
+
+  // 설치된 전략 위젯은 별도 페이지로 이동하지 않고,
+  // 방금 검색한 종목의 AI 응답 바로 아래에 붙인다.
+  const matchedStock = (text.includes('삼성') || text.includes('삼전')) ? '삼성전자'
+    : (text.includes('하이닉스') ? 'SK하이닉스' : '');
+  if (matchedStock && typeof WidgetEngine !== 'undefined') {
+    WidgetEngine.renderInstalledForStock(body, matchedStock);
+  }
+
   body.style.opacity = '0';
   body.style.transition = 'opacity 0.3s';
   await sleep(50);
@@ -563,59 +572,131 @@ document.addEventListener('keydown', (e) => {
 const WidgetStore = (() => {
   const store = document.getElementById('widgetStore');
   const search = document.getElementById('widgetStoreSearch');
+  const available = document.getElementById('widgetStoreList');
+  const installedSection = document.getElementById('widgetInstalledSection');
+  const installedList = document.getElementById('widgetInstalledList');
+  const STORAGE = 'gaemi-installed-widgets';
+
+  function getInstalled() {
+    try {
+      const value = JSON.parse(localStorage.getItem(STORAGE) || '[]');
+      return Array.isArray(value) ? value : [];
+    } catch { return []; }
+  }
+
+  function saveInstalled(items) {
+    localStorage.setItem(STORAGE, JSON.stringify([...new Set(items)]));
+  }
+
+  function isInstalled(type) {
+    return getInstalled().includes(type);
+  }
 
   function open() {
     if (!store) return;
+    renderInstalled();
     store.classList.add('open');
     store.setAttribute('aria-hidden', 'false');
     if (search) setTimeout(() => search.focus(), 0);
   }
+
   function close() {
     if (!store) return;
     store.classList.remove('open');
     store.setAttribute('aria-hidden', 'true');
   }
 
-  function filter(value) {
-    const q = String(value || '').trim().toLowerCase();
-    document.querySelectorAll('.widget-store-card').forEach(card => {
-      const hay = (card.dataset.widgetSearch || '').toLowerCase();
-      card.classList.toggle('is-hidden', q && !hay.includes(q));
+  function renderInstalled() {
+    if (!installedList || !installedSection) return;
+    const installed = getInstalled();
+    installedList.innerHTML = '';
+
+    installed.forEach(type => {
+      const source = available?.querySelector(`[data-add-widget="${type}"]`)?.closest('.widget-store-card');
+      if (!source) return;
+      const clone = source.cloneNode(true);
+      clone.classList.add('is-installed-card');
+      const btn = clone.querySelector('.widget-install-btn');
+      if (btn) {
+        btn.textContent = '설치됨';
+        btn.classList.add('is-installed');
+        btn.disabled = false;
+        btn.dataset.remove-widget = type;
+        btn.removeAttribute('data-add-widget');
+      }
+      installedList.appendChild(clone);
+    });
+
+    installedSection.hidden = installedList.children.length === 0;
+
+    available?.querySelectorAll('.widget-store-card').forEach(card => {
+      const btn = card.querySelector('[data-add-widget]');
+      if (!btn) return;
+      const type = btn.dataset.addWidget;
+      const on = installed.includes(type);
+      card.classList.toggle('is-installed-source', on);
+      btn.disabled = on;
+      btn.textContent = on ? '설치됨' : '+';
+      btn.classList.toggle('is-installed', on);
     });
   }
 
-  document.addEventListener('click', (e) => {
-    if (e.target.closest('[data-close-widget-store]')) close();
+  function install(type) {
+    const installed = getInstalled();
+    if (!installed.includes(type)) {
+      installed.push(type);
+      saveInstalled(installed);
+    }
+    renderInstalled();
+  }
+
+  function uninstall(type) {
+    saveInstalled(getInstalled().filter(x => x !== type));
+    renderInstalled();
+  }
+
+  function filter(value) {
+    const q = String(value || '').trim().toLowerCase();
+    available?.querySelectorAll('.widget-store-card').forEach(card => {
+      const hay = (card.dataset.widgetSearch || '').toLowerCase();
+      card.classList.toggle('is-hidden', !!q && !hay.includes(q));
+    });
+  }
+
+  document.addEventListener('click', e => {
+    if (e.target.closest('[data-close-widget-store]')) {
+      close();
+      return;
+    }
+
     const add = e.target.closest('[data-add-widget]');
     if (add && !add.disabled) {
-      WidgetEngine.add(add.dataset.addWidget);
-      close();
+      install(add.dataset.addWidget);
+      // 설치는 페이지 이동이 아니라 '설치됨' 영역으로만 이동한다.
+      return;
     }
+
+    const remove = e.target.closest('[data-remove-widget]');
+    if (remove) uninstall(remove.dataset.removeWidget);
   });
 
   if (search) search.addEventListener('input', () => filter(search.value));
 
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', e => {
     if (e.key === 'Escape') close();
   });
 
-  return { open, close };
+  renderInstalled();
+
+  return { open, close, getInstalled, isInstalled };
 })();
 
 const WidgetEngine = (() => {
-  const grid = document.getElementById('widgetGrid');
-  const workspace = document.getElementById('widgetWorkspace');
-  if (!grid || !workspace) return { add: () => {} };
-
-  let counter = 0;
-
   const definitions = {
     'samsung-move': {
-      icon: '🔮',
       title: '삼성전자 왜 빨간불일까?',
-      lead: '#삼성전자 +0.37% · 오늘 신났네 ㅎㅎ',
-      price: '259,500원',
-      change: '+3.2%',
+      stock: '삼성전자',
+      lead: ['#삼성전자 +0.37%', '오늘 신났네 ㅎㅎ'],
       rows: [
         ['09:00', '시초가 +1.5% 상승 출발'],
         ['09:15', '1분봉 거래대금 평소 대비 4.2배 폭발'],
@@ -632,31 +713,27 @@ const WidgetEngine = (() => {
     }
   };
 
+  let counter = 0;
+
   function escapeHTML(value) {
     return String(value).replace(/[&<>"']/g, ch => ({
       '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     }[ch]));
   }
 
-  function add(type) {
+  function create(type) {
     const def = definitions[type];
-    if (!def) return;
+    if (!def) return null;
 
-    workspace.classList.add('active');
-    document.getElementById('welcome')?.style.setProperty('display', 'none');
-
-    const id = 'widget-' + (++counter);
     const article = document.createElement('article');
     article.className = 'strategy-widget';
-    article.dataset.widgetId = id;
+    article.dataset.widgetId = 'response-widget-' + (++counter);
     article.dataset.widgetType = type;
-    article.style.gridColumn = 'span 6';
-    article.style.gridRow = 'span 25';
 
-    const rows = def.rows.map((row, i) => `
+    const rows = def.rows.map(row => `
       <div class="widget-timeline-row">
         <span class="widget-time">${escapeHTML(row[0])}</span>
-        <span class="widget-event ${i >= 6 ? 'widget-highlight' : ''}">${escapeHTML(row[1])}</span>
+        <span class="widget-event">${escapeHTML(row[1])}</span>
       </div>`).join('');
 
     article.innerHTML = `
@@ -671,8 +748,8 @@ const WidgetEngine = (() => {
       </div>
       <div class="strategy-widget-body">
         <div class="widget-lead">
-          <div class="widget-lead-line">#삼성전자 <span class="widget-up">+0.37%</span></div>
-          <div class="widget-lead-line">오늘 신났네 ㅎㅎ</div>
+          <div class="widget-lead-line">${escapeHTML(def.lead[0]).replace('+0.37%', '<span class="widget-up">+0.37%</span>')}</div>
+          <div class="widget-lead-line">${escapeHTML(def.lead[1])}</div>
         </div>
         <div class="widget-timeline">${rows}</div>
         <div class="widget-tagline">${escapeHTML(def.tags)}</div>
@@ -683,51 +760,32 @@ const WidgetEngine = (() => {
         <button type="button" data-widget-dislike>♧</button>
         <button type="button" data-widget-share>공유</button>
       </div>
-      <div class="widget-resize" role="separator" aria-label="위젯 크기 조절" title="드래그하여 크기 조절"></div>
+      <div class="widget-resize" role="separator" aria-label="위젯 크기 조절"></div>
     `;
 
-    grid.appendChild(article);
     wireWidget(article);
+    return article;
   }
 
+  function renderInstalledForStock(container, stockName) {
+    if (!container || !stockName || typeof WidgetStore === 'undefined') return;
+    const installed = WidgetStore.getInstalled();
+    const wrap = document.createElement('div');
+    wrap.className = 'widget-response-wrap';
 
-  function addTabToWidget(widget) {
-    const def = definitions[widget.dataset.widgetType];
-    if (!def) return;
-    let tabs = widget.querySelector('.widget-tabs');
-    let panels = widget.querySelector('.widget-tab-panels');
-
-    if (!tabs) {
-      const body = widget.querySelector('.strategy-widget-body');
-      tabs = document.createElement('div');
-      tabs.className = 'widget-tabs';
-      tabs.innerHTML = '<button type="button" class="widget-tab active">삼성전자 분석</button>';
-      panels = document.createElement('div');
-      panels.className = 'widget-tab-panels';
-      const first = document.createElement('div');
-      first.className = 'widget-tab-panel active';
-      first.innerHTML = body.innerHTML;
-      panels.appendChild(first);
-      body.replaceWith(panels);
-      widget.querySelector('.strategy-widget-head').insertAdjacentElement('afterend', tabs);
-    }
-
-    const n = tabs.querySelectorAll('.widget-tab').length + 1;
-    const tab = document.createElement('button');
-    tab.type='button'; tab.className='widget-tab'; tab.textContent=`분석 ${n}`;
-    const panel=document.createElement('div');
-    panel.className='widget-tab-panel';
-    panel.innerHTML=`<div class="widget-lead"><div class="widget-lead-line">#삼성전자 <span class="widget-up">+0.37%</span></div><div class="widget-lead-line">오늘 신났네 ㅎㅎ</div></div>
-      <div class="widget-timeline">${def.rows.map((r,i)=>`<div class="widget-timeline-row"><span class="widget-time">${r[0]}</span><span class="widget-event ${i>=6?'widget-highlight':''}">${r[1]}</span></div>`).join('')}</div>
-      <div class="widget-tagline">${def.tags}</div>`;
-    tabs.appendChild(tab); panels.appendChild(panel);
-
-    tab.addEventListener('click',()=>{
-      tabs.querySelectorAll('.widget-tab').forEach(x=>x.classList.remove('active'));
-      panels.querySelectorAll('.widget-tab-panel').forEach(x=>x.classList.remove('active'));
-      tab.classList.add('active'); panel.classList.add('active');
+    installed.forEach(type => {
+      const def = definitions[type];
+      if (!def || def.stock !== stockName) return;
+      const widget = create(type);
+      if (widget) wrap.appendChild(widget);
     });
-    tab.click();
+
+    if (wrap.children.length) container.appendChild(wrap);
+  }
+
+  function add(type) {
+    // 하위 호환: 기존 호출이 있어도 별도 페이지를 만들지 않는다.
+    WidgetStore?.install?.(type);
   }
 
   function wireWidget(widget) {
@@ -737,37 +795,32 @@ const WidgetEngine = (() => {
     handle?.addEventListener('pointerdown', e => startDrag(e, widget));
     resize?.addEventListener('pointerdown', e => startResize(e, widget));
 
-    widget.querySelector('[data-widget-remove]')?.addEventListener('click', () => {
-      widget.remove();
-      if (!grid.children.length) workspace.classList.remove('active');
+    widget.querySelector('[data-widget-add-tab]')?.addEventListener('click', () => {
+      addTabToWidget(widget);
     });
 
-    widget.querySelector('[data-widget-add-tab]')?.addEventListener('click', () => addTabToWidget(widget));
+    widget.querySelector('[data-widget-remove]')?.addEventListener('click', () => {
+      widget.remove();
+    });
 
     widget.querySelector('[data-widget-refresh]')?.addEventListener('click', () => {
-      widget.animate(
-        [{ opacity: .55 }, { opacity: 1 }],
-        { duration: 180, easing: 'ease-out' }
-      );
+      widget.animate([{opacity:.55},{opacity:1}], {duration:180,easing:'ease-out'});
     });
 
     widget.querySelector('[data-widget-copy]')?.addEventListener('click', async () => {
       const text = getShareText(widget);
       try {
         await navigator.clipboard.writeText(text);
-        const btn = widget.querySelector('[data-widget-copy]');
-        const old = btn.textContent;
-        btn.textContent = '복사됨';
-        setTimeout(() => btn.textContent = old, 1000);
-      } catch {
-        window.prompt('아래 내용을 복사하세요.', text);
-      }
+        const btn=widget.querySelector('[data-widget-copy]');
+        const old=btn.textContent; btn.textContent='복사됨';
+        setTimeout(()=>btn.textContent=old,1000);
+      } catch { window.prompt('아래 내용을 복사하세요.', text); }
     });
 
     widget.querySelector('[data-widget-share]')?.addEventListener('click', async () => {
-      const text = getShareText(widget);
+      const text=getShareText(widget);
       if (navigator.share) {
-        try { await navigator.share({ title: 'gaemiGTP', text }); } catch {}
+        try { await navigator.share({title:'gaemiGTP', text}); } catch {}
       } else {
         try { await navigator.clipboard.writeText(text); alert('공유용 문구를 복사했습니다.'); }
         catch { window.prompt('공유용 문구', text); }
@@ -775,108 +828,104 @@ const WidgetEngine = (() => {
     });
 
     widget.querySelector('[data-widget-like]')?.addEventListener('click', e => {
-      e.currentTarget.textContent = e.currentTarget.textContent === '♥' ? '♡' : '♥';
+      e.currentTarget.textContent=e.currentTarget.textContent==='♥'?'♡':'♥';
     });
     widget.querySelector('[data-widget-dislike]')?.addEventListener('click', e => {
-      e.currentTarget.textContent = e.currentTarget.textContent === '♧' ? '♤' : '♧';
+      e.currentTarget.textContent=e.currentTarget.textContent==='♧'?'♤':'♧';
     });
+  }
+
+  function addTabToWidget(widget) {
+    const def = definitions[widget.dataset.widgetType];
+    if (!def) return;
+    let tabs=widget.querySelector('.widget-tabs');
+    let panels=widget.querySelector('.widget-tab-panels');
+
+    if (!tabs) {
+      const body=widget.querySelector('.strategy-widget-body');
+      tabs=document.createElement('div');
+      tabs.className='widget-tabs';
+      tabs.innerHTML='<button type="button" class="widget-tab active">삼성전자 분석</button>';
+      panels=document.createElement('div');
+      panels.className='widget-tab-panels';
+      const first=document.createElement('div');
+      first.className='widget-tab-panel active';
+      first.innerHTML=body.innerHTML;
+      panels.appendChild(first);
+      body.replaceWith(panels);
+      widget.querySelector('.strategy-widget-head').insertAdjacentElement('afterend',tabs);
+    }
+
+    const n=tabs.querySelectorAll('.widget-tab').length+1;
+    const tab=document.createElement('button');
+    tab.type='button'; tab.className='widget-tab'; tab.textContent=`분석 ${n}`;
+    const panel=document.createElement('div');
+    panel.className='widget-tab-panel';
+    panel.innerHTML=`<div class="widget-lead"><div class="widget-lead-line">#삼성전자 <span class="widget-up">+0.37%</span></div><div class="widget-lead-line">오늘 신났네 ㅎㅎ</div></div>
+      <div class="widget-timeline">${def.rows.map(r=>`<div class="widget-timeline-row"><span class="widget-time">${escapeHTML(r[0])}</span><span class="widget-event">${escapeHTML(r[1])}</span></div>`).join('')}</div>
+      <div class="widget-tagline">${escapeHTML(def.tags)}</div>`;
+    tabs.appendChild(tab); panels.appendChild(panel);
+    tab.addEventListener('click',()=>{
+      tabs.querySelectorAll('.widget-tab').forEach(x=>x.classList.remove('active'));
+      panels.querySelectorAll('.widget-tab-panel').forEach(x=>x.classList.remove('active'));
+      tab.classList.add('active'); panel.classList.add('active');
+    });
+    tab.click();
   }
 
   function getShareText(widget) {
-    const title = widget.querySelector('.strategy-widget-title')?.textContent || '';
-    const lead = widget.querySelector('.widget-lead')?.textContent || '';
-    const price = widget.querySelector('.widget-price-line')?.textContent || '';
-    const rows = [...widget.querySelectorAll('.widget-timeline-row')]
-      .map(r => `${r.querySelector('.widget-time')?.textContent}  ${r.querySelector('.widget-event')?.textContent}`)
-      .join('\n');
-    const tags = widget.querySelector('.widget-tagline')?.textContent || '';
-    return [title, '', lead, '', rows, '', price.trim(), '', tags].join('\n').replace(/\n{3,}/g, '\n\n');
+    const title=widget.querySelector('.strategy-widget-title')?.textContent||'';
+    const lead=widget.querySelector('.widget-lead')?.textContent||'';
+    const rows=[...widget.querySelectorAll('.widget-timeline-row')].map(r =>
+      `${r.querySelector('.widget-time')?.textContent}  ${r.querySelector('.widget-event')?.textContent}`).join('\n');
+    const tags=widget.querySelector('.widget-tagline')?.textContent||'';
+    return [title,'',lead,'',rows,'',tags].join('\n').replace(/\n{3,}/g,'\n\n');
   }
 
   function startDrag(e, widget) {
-    e.preventDefault();
-    e.stopPropagation();
-
+    e.preventDefault(); e.stopPropagation();
     widget.classList.add('is-dragging');
-    const placeholder = document.createElement('div');
-    placeholder.className = 'widget-drag-placeholder';
-    placeholder.style.gridColumn = widget.style.gridColumn || 'span 6';
-    placeholder.style.gridRow = widget.style.gridRow || 'span 25';
-    grid.insertBefore(placeholder, widget);
-    widget.style.position = 'fixed';
-    const rect = widget.getBoundingClientRect();
-    widget.style.width = rect.width + 'px';
-    widget.style.height = rect.height + 'px';
-    widget.style.left = rect.left + 'px';
-    widget.style.top = rect.top + 'px';
-    widget.style.zIndex = '200';
+    const rect=widget.getBoundingClientRect();
+    widget.style.position='fixed';
+    widget.style.width=rect.width+'px';
+    widget.style.height=rect.height+'px';
+    widget.style.left=rect.left+'px';
+    widget.style.top=rect.top+'px';
+    widget.style.zIndex='200';
+    const ox=e.clientX-rect.left, oy=e.clientY-rect.top;
 
-    const offsetX = e.clientX - rect.left;
-    const offsetY = e.clientY - rect.top;
-
-    const move = ev => {
-      widget.style.left = (ev.clientX - offsetX) + 'px';
-      widget.style.top = (ev.clientY - offsetY) + 'px';
-
-      const target = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('.strategy-widget');
-      if (!target || target === widget || !grid.contains(target)) return;
-
-      const targetRect = target.getBoundingClientRect();
-      const before = ev.clientY < targetRect.top + targetRect.height / 2;
-      if (before) grid.insertBefore(placeholder, target);
-      else grid.insertBefore(placeholder, target.nextSibling);
+    const move=ev=>{
+      widget.style.left=(ev.clientX-ox)+'px';
+      widget.style.top=(ev.clientY-oy)+'px';
     };
-
-    const finish = () => {
+    const finish=()=>{
       widget.classList.remove('is-dragging');
-      widget.style.position = '';
-      widget.style.width = '';
-      widget.style.height = '';
-      widget.style.left = '';
-      widget.style.top = '';
-      widget.style.zIndex = '';
-      grid.insertBefore(widget, placeholder);
-      placeholder.remove();
-
-      document.removeEventListener('pointermove', move);
-      document.removeEventListener('pointerup', finish);
-      document.removeEventListener('pointercancel', finish);
+      widget.style.position=''; widget.style.width=''; widget.style.height='';
+      widget.style.left=''; widget.style.top=''; widget.style.zIndex='';
+      document.removeEventListener('pointermove',move);
+      document.removeEventListener('pointerup',finish);
     };
-
-    document.addEventListener('pointermove', move);
-    document.addEventListener('pointerup', finish, { once: true });
-    document.addEventListener('pointercancel', finish, { once: true });
+    document.addEventListener('pointermove',move);
+    document.addEventListener('pointerup',finish,{once:true});
   }
 
   function startResize(e, widget) {
-    e.preventDefault();
-    e.stopPropagation();
-    handlePointerCapture(e, widget);
-
-    const rect = widget.getBoundingClientRect();
-    const startW = rect.width;
-    const startH = rect.height;
-    const startX = e.clientX;
-    const startY = e.clientY;
-
-    const move = ev => {
-      const colWidth = grid.clientWidth / 12;
-      const span = Math.max(3, Math.min(12, Math.round((startW + ev.clientX - startX) / colWidth)));
-      const rows = Math.max(12, Math.min(80, Math.round((startH + ev.clientY - startY) / 22)));
-      widget.style.gridColumn = `span ${span}`;
-      widget.style.gridRow = `span ${rows}`;
+    e.preventDefault(); e.stopPropagation();
+    const rect=widget.getBoundingClientRect();
+    const startW=rect.width, startH=rect.height;
+    const startX=e.clientX, startY=e.clientY;
+    const move=ev=>{
+      widget.style.width=Math.max(320,startW+ev.clientX-startX)+'px';
+      widget.style.height=Math.max(280,startH+ev.clientY-startY)+'px';
     };
-    const up = () => {
-      document.removeEventListener('pointermove', move);
-      document.removeEventListener('pointerup', up);
+    const up=()=>{
+      document.removeEventListener('pointermove',move);
+      document.removeEventListener('pointerup',up);
     };
-    document.addEventListener('pointermove', move);
-    document.addEventListener('pointerup', up, { once: true });
+    document.addEventListener('pointermove',move);
+    document.addEventListener('pointerup',up,{once:true});
   }
 
-  function handlePointerCapture(e, widget) {
-    try { e.target.setPointerCapture(e.pointerId); } catch {}
-  }
-
-  return { add };
+  return { create, renderInstalledForStock, add };
 })();
+
