@@ -336,6 +336,7 @@ function getDemoResponse(userText) {
   const data = stockData[stockName];
 
   if (data) {
+    // 내용은 초보자도 직접 수정하기 쉽도록 두 줄짜리 텍스트만 남긴다.
     return `
       <div class="section" id="section-why">
         <div class="section-header">
@@ -365,7 +366,9 @@ function getDemoResponse(userText) {
       </div>
 
       <div class="section" id="section-vol">
-        <div class="section-header"><div class="section-title">거래대금 폭발 <span class="section-time">· 10초</span></div></div>
+        <div class="section-header">
+          <div class="section-title">거래대금 폭발 <span class="section-time">· 10초</span></div>
+        </div>
         <div class="simple-line">오늘 거래대금이 크게 움직인 종목을 볼게.</div>
         <div class="simple-line">평소보다 거래가 얼마나 늘었는지도 확인할게.</div>
         ${sectionFooter('section-vol')}
@@ -385,9 +388,10 @@ function getDemoResponse(userText) {
   return `
     <div class="section" id="section-default">
       <div class="section-header">
-        <div class="section-title">${userText}</div>
+        <div class="section-title">${escapeHTML(userText)}</div>
       </div>
-      <div class="report-note">아직 데이터 창고에 없는 종목입니다. '삼성전자' 또는 'SK하이닉스'를 검색해보세요!</div>
+      <div class="simple-line">아직 준비된 분석 데이터가 없어요.</div>
+      <div class="simple-line">삼성전자 또는 SK하이닉스를 검색해보세요.</div>
       ${sectionFooter('section-default')}
     </div>
   `;
