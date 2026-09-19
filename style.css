@@ -797,6 +797,30 @@ body.welcome-mode .input-wrapper { display: none; }
 }
 
 
+/* Step: unify widget body text size. Keep the widget tab/title size unchanged. */
+.ai-widget-shell .widget-content .section,
+.ai-widget-shell .widget-content .section .section-title,
+.ai-widget-shell .widget-content .section .section-time,
+.ai-widget-shell .widget-content .section .report-intro,
+.ai-widget-shell .widget-content .section .report-line,
+.ai-widget-shell .widget-content .section .report-time,
+.ai-widget-shell .widget-content .section .report-text,
+.ai-widget-shell .widget-content .section .report-current,
+.ai-widget-shell .widget-content .section .report-current-label,
+.ai-widget-shell .widget-content .section .report-current-value,
+.ai-widget-shell .widget-content .section .report-compare,
+.ai-widget-shell .widget-content .section .report-compare-row,
+.ai-widget-shell .widget-content .section .report-compare-label,
+.ai-widget-shell .widget-content .section .report-note,
+.ai-widget-shell .widget-content .section .report-sources,
+.ai-widget-shell .widget-content .section .report-sources-item,
+.ai-widget-shell .widget-content .section .related-stocks-title,
+.ai-widget-shell .widget-content .section .related-stock,
+.ai-widget-shell .widget-content .section .bar-label,
+.ai-widget-shell .widget-content .section .bar-value {
+  font-size:14px;
+}
+
 /* B4 step 2: AI response widget header + tabs */
 .widget-message { display:block; padding:20px 0; }
 .widget-message .msg-body { padding-top:0; }
@@ -918,12 +942,3 @@ body.welcome-mode .input-wrapper { display: none; }
 .ai-widget-shell .widget-content > .section { display:none; margin-bottom:0; }
 .ai-widget-shell .widget-content > .section.widget-section-active { display:block; }
 .ai-widget-shell .widget-content .section-footer { margin-bottom:0; }
-
-/* Step correction: unify BODY text only. Keep widget/tab titles unchanged for mobile density. */
-.ai-widget-shell .widget-tab {
-  font-size: 12px;
-}
-.ai-widget-shell .widget-content > .section > *:not(.section-header),
-.ai-widget-shell .widget-content > .section > *:not(.section-header) * {
-  font-size: 15px !important;
-}
