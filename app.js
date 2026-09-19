@@ -341,8 +341,8 @@ function getDemoResponse(userText) {
         <div class="section-header">
           <div class="section-title">${stockName} 왜 빨간불일까? <span class="section-time">· ${data.why_time}</span></div>
         </div>
-        <div class="simple-line">${stockName} 현재 ${data.change} 상승중이야!</div>
-        <div class="simple-line">오늘 시장 흐름을 간단히 정리해볼게.</div>
+        <div class="cal-note">${data.why_title}</div>
+        <div class="cal-note">${data.why_text2}</div>
         ${sectionFooter('section-why')}
       </div>
 
@@ -350,8 +350,8 @@ function getDemoResponse(userText) {
         <div class="section-header">
           <div class="section-title">큰손들은 뭐하고 있어? <span class="section-time">· 20초</span></div>
         </div>
-        <div class="simple-line">외국인과 기관의 움직임을 확인해볼게.</div>
-        <div class="simple-line">오늘 수급 흐름을 간단히 정리해볼게.</div>
+        <div class="cal-note">${data.big_memo.replace('<br>', ' ')}</div>
+        <div class="cal-note">같이 움직인 종목: ${data.related1_name}, ${data.related2_name}</div>
         ${sectionFooter('section-big')}
       </div>
 
@@ -359,17 +359,15 @@ function getDemoResponse(userText) {
         <div class="section-header">
           <div class="section-title">📅 다가오는 일정 <span class="section-time">· 15초</span></div>
         </div>
-        <div class="simple-line">앞으로 확인할 주요 일정이 있어.</div>
-        <div class="simple-line">중요한 일정부터 간단히 정리해볼게.</div>
+        <div class="cal-note">${data.cal_date1} · ${data.cal_event1}</div>
+        <div class="cal-note">${data.cal_date2} · ${data.cal_event2}</div>
         ${sectionFooter('section-cal')}
       </div>
 
       <div class="section" id="section-vol">
-        <div class="section-header">
-          <div class="section-title">거래대금 폭발 <span class="section-time">· 10초</span></div>
-        </div>
-        <div class="simple-line">오늘 거래대금 흐름을 확인해볼게.</div>
-        <div class="simple-line">눈에 띄는 종목부터 간단히 보여줄게.</div>
+        <div class="section-header"><div class="section-title">거래대금 폭발 <span class="section-time">· 10초</span></div></div>
+        <div class="cal-note">1. ${data.vol_rank1}</div>
+        <div class="cal-note">2. ${data.vol_rank2}</div>
         ${sectionFooter('section-vol')}
       </div>
 
@@ -377,8 +375,8 @@ function getDemoResponse(userText) {
         <div class="section-header">
           <div class="section-title">내일 어디로 튈까?</div>
         </div>
-        <div class="simple-line">내일 흐름에 대한 의견을 남겨줘.</div>
-        <div class="simple-line">투표 결과는 나중에 함께 보여줄게.</div>
+        <div class="cal-note">현재 전망: 상승 ${data.vote_up} / 하락 ${data.vote_down}</div>
+        <div class="cal-note">아래 버튼으로 의견을 남겨보세요.</div>
         ${sectionFooter('section-vote')}
       </div>
     `;
@@ -389,7 +387,8 @@ function getDemoResponse(userText) {
       <div class="section-header">
         <div class="section-title">${userText}</div>
       </div>
-      <div class="report-note">아직 데이터 창고에 없는 종목입니다. '삼성전자' 또는 'SK하이닉스'를 검색해보세요!</div>
+      <div class="cal-note">아직 데이터 창고에 없는 종목입니다.</div>
+      <div class="cal-note">'삼성전자' 또는 'SK하이닉스'를 검색해보세요!</div>
       ${sectionFooter('section-default')}
     </div>
   `;
