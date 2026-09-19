@@ -341,17 +341,8 @@ function getDemoResponse(userText) {
         <div class="section-header">
           <div class="section-title">${stockName} 왜 빨간불일까? <span class="section-time">· ${data.why_time}</span></div>
         </div>
-        <div class="cal-note">${data.why_title}</div>
-        <div class="report-line"><span class="report-time">${data.why_time1}</span><span class="report-text">${data.why_text1}</span></div>
-        <div class="report-line"><span class="report-time">${data.why_time2}</span><span class="report-text">${data.why_text2}</span></div>
-        <div class="report-current">
-          <span class="report-current-label">현재가</span>
-          <span class="report-current-value">${data.currentPrice} <span class="up-color">${data.change}</span></span>
-        </div>
-        <div class="report-sources">
-          <div class="report-sources-item">${data.news1}</div>
-          <div class="report-sources-item">${data.news2}</div>
-        </div>
+        <div class="simple-line">${stockName} 현재 ${data.change} 상승중이야!</div>
+        <div class="simple-line">오늘 시장 흐름을 간단히 정리해볼게.</div>
         ${sectionFooter('section-why')}
       </div>
 
@@ -359,30 +350,8 @@ function getDemoResponse(userText) {
         <div class="section-header">
           <div class="section-title">큰손들은 뭐하고 있어? <span class="section-time">· 20초</span></div>
         </div>
-        <div class="stock-name-sub">${stockName}</div>
-        <div class="bar-chart">
-          <div class="bar-row">
-            <div class="bar-label">외국인</div>
-            <div class="bar-track"><div class="bar-zero"></div><div class="bar-fill-right" style="width:${data.big_foreign_pct};"></div></div>
-            <div class="bar-value buy">${data.big_foreign_val}</div>
-          </div>
-          <div class="bar-row">
-            <div class="bar-label">기관</div>
-            <div class="bar-track"><div class="bar-zero"></div><div class="bar-fill-right" style="width:${data.big_inst_pct};"></div></div>
-            <div class="bar-value buy">${data.big_inst_val}</div>
-          </div>
-          <div class="bar-row">
-            <div class="bar-label">개인</div>
-            <div class="bar-track"><div class="bar-zero"></div><div class="bar-fill-left" style="width:${data.big_retail_pct};"></div></div>
-            <div class="bar-value sell">${data.big_retail_val}</div>
-          </div>
-        </div>
-        <div class="cal-note">${data.big_memo}</div>
-        <div class="related-stocks" style="border-top: none; margin-top: 10px;">
-          <div class="related-stocks-title">같이 움직인 종목</div>
-          <div class="related-stock-row"><span class="related-stock-name">${data.related1_name}</span><span class="related-stock-change up-color">${data.related1_change}</span></div>
-          <div class="related-stock-row"><span class="related-stock-name">${data.related2_name}</span><span class="related-stock-change up-color">${data.related2_change}</span></div>
-        </div>
+        <div class="simple-line">외국인과 기관의 움직임을 확인해볼게.</div>
+        <div class="simple-line">오늘 수급 흐름을 간단히 정리해볼게.</div>
         ${sectionFooter('section-big')}
       </div>
 
@@ -390,19 +359,17 @@ function getDemoResponse(userText) {
         <div class="section-header">
           <div class="section-title">📅 다가오는 일정 <span class="section-time">· 15초</span></div>
         </div>
-        <div class="calendar-list">
-          <div class="cal-row"><span class="cal-date">${data.cal_date1}</span><span class="cal-event">${data.cal_event1}</span></div>
-          <div class="cal-row"><span class="cal-date">${data.cal_date2}</span><span class="cal-event">${data.cal_event2}</span></div>
-        </div>
-        <div class="cal-note">${data.cal_memo}</div>
+        <div class="simple-line">앞으로 확인할 주요 일정이 있어.</div>
+        <div class="simple-line">중요한 일정부터 간단히 정리해볼게.</div>
         ${sectionFooter('section-cal')}
       </div>
 
       <div class="section" id="section-vol">
-        <div class="section-header"><div class="section-title">거래대금 폭발 <span class="section-time">· 10초</span></div></div>
-        <div class="report-line"><span class="report-time">1</span><span class="report-text"><strong>${data.vol_rank1}</strong></span></div>
-        <div class="report-line"><span class="report-time">2</span><span class="report-text"><strong>${data.vol_rank2}</strong></span></div>
-        <div class="report-line"><span class="report-time">3</span><span class="report-text"><strong>${data.vol_rank3}</strong></span></div>
+        <div class="section-header">
+          <div class="section-title">거래대금 폭발 <span class="section-time">· 10초</span></div>
+        </div>
+        <div class="simple-line">오늘 거래대금 흐름을 확인해볼게.</div>
+        <div class="simple-line">눈에 띄는 종목부터 간단히 보여줄게.</div>
         ${sectionFooter('section-vol')}
       </div>
 
@@ -410,20 +377,8 @@ function getDemoResponse(userText) {
         <div class="section-header">
           <div class="section-title">내일 어디로 튈까?</div>
         </div>
-        <div class="vote-wrap">
-          <div class="vote-stats">
-            <span class="up-color">상승 ${data.vote_up}</span>
-            <span class="down-color">하락 ${data.vote_down}</span>
-          </div>
-          <div class="vote-bar">
-            <div class="vote-bar-up" id="voteUp" style="width:${data.vote_up};"></div>
-            <div class="vote-bar-down" id="voteDown" style="width:${data.vote_down};"></div>
-          </div>
-          <div class="vote-buttons">
-            <button class="vote-btn up" onclick="castVote('up')">상승 전망</button>
-            <button class="vote-btn down" onclick="castVote('down')">하락 전망</button>
-          </div>
-        </div>
+        <div class="simple-line">내일 흐름에 대한 의견을 남겨줘.</div>
+        <div class="simple-line">투표 결과는 나중에 함께 보여줄게.</div>
         ${sectionFooter('section-vote')}
       </div>
     `;

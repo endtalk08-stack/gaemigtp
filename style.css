@@ -942,3 +942,13 @@ body.welcome-mode .input-wrapper { display: none; }
 .ai-widget-shell .widget-content > .section { display:none; margin-bottom:0; }
 .ai-widget-shell .widget-content > .section.widget-section-active { display:block; }
 .ai-widget-shell .widget-content .section-footer { margin-bottom:0; }
+
+/* Simple editable demo lines: all widget body text uses one size. */
+.ai-widget-shell .simple-line {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.8;
+  color: var(--text);
+  margin: 0;
+  padding: 4px 0;
+}
