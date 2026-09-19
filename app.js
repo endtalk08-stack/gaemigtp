@@ -4,57 +4,11 @@
 const stockData = {
   "삼성전자": {
     why_time: "30초",
-    why_title: "삼성전자 오늘 신났네 ㅎㅎ",
-    why_time1: "09:00 시초가 4.2배 폭발", 
-    why_text2: "09:00 거래대금 4.2배 폭발",
-    big_memo: "259,500원 -3.2%",
-    currentPrice: "259,500원", change: "+3.2%",
-    news1: "📰 HBM 공급 확대 뉴스",
-    news2: "📌 외국인 100만 주 순매수",
-
-    big_foreign_pct: "40%", big_foreign_val: "+48만",
-    big_inst_pct: "18%", big_inst_val: "+21만",
-    big_retail_pct: "58%", big_retail_val: "-69만",
-    big_memo: "외놈들이랑 기관 아찌들은 쌍끌이로 담고 있어.<br>우리 개미는 반대로 팔고 있고 ㅠㅠ",
-    related1_name: "SK하이닉스", related1_change: "+2.1%",
-    related2_name: "한미반도체", related2_change: "+1.8%",
-
-    cal_date1: "🌙 오늘 밤", cal_event1: "조용함",
-    cal_date2: "🔥 09/17(목)", cal_event2: "미국 FOMC 기준금리 결정 (03:00)",
-    cal_memo: "지표 발표 전후로는 호가창 얇아짐.<br>뇌동매매 금지!",
-
-    vol_rank1: "삼성전자 · 4.2배",
-    vol_rank2: "SK하이닉스 · 3.1배",
-    vol_rank3: "우리로 · 2.8배",
-
-    vote_up: "68%", vote_down: "32%"
+    why_title: "삼성전자 오늘 신났네 ㅎㅎ"
   },
-  
   "SK하이닉스": {
     why_time: "20초",
-    why_title: "엔비디아 실적 발표 대기 중!",
-    why_time1: "08:30", why_text1: "장전 동시호가 강세",
-    why_time2: "09:00", why_text2: "외국인 매수세 유입",
-    currentPrice: "205,000원", change: "+2.1%",
-    news1: "📰 AI 반도체 수요 급증 뉴스",
-    news2: "📌 기관 집중 매수",
-
-    big_foreign_pct: "55%", big_foreign_val: "+72만",
-    big_inst_pct: "25%", big_inst_val: "+31만",
-    big_retail_pct: "20%", big_retail_val: "-15만",
-    big_memo: "외국인이 쓸어 담고 있네!<br>실적 기대감이 엄청난 듯.",
-    related1_name: "한미반도체", related1_change: "+4.5%",
-    related2_name: "이수페타시스", related2_change: "+3.2%",
-
-    cal_date1: "🔥 내일 새벽", cal_event1: "엔비디아 2분기 실적 발표",
-    cal_date2: "📌 09/25(금)", cal_event2: "미국 마이크론 실적 발표",
-    cal_memo: "엔비디아 실적에 따라 내일 갭상승/하락 결정됨!",
-
-    vol_rank1: "SK하이닉스 · 5.5배",
-    vol_rank2: "한미반도체 · 4.1배",
-    vol_rank3: "삼성전자 · 2.2배",
-
-    vote_up: "85%", vote_down: "15%"
+    why_title: "엔비디아 실적 발표 대기 중!"
   }
 };
 
@@ -397,17 +351,6 @@ function getDemoResponse(userText) {
   `;
 }
 
-let voted = false;
-function castVote(type) {
-  if (voted) return;
-  voted = true;
-  const up = document.getElementById('voteUp');
-  const down = document.getElementById('voteDown');
-  if (up && down) {
-    if (type === 'up') { up.style.width = '74%'; down.style.width = '26%'; }
-    else { up.style.width = '61%'; down.style.width = '39%'; }
-  }
-}
 
 
 function escapeHTML(value) {
