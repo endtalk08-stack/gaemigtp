@@ -817,7 +817,7 @@ body.welcome-mode .input-wrapper { display: none; }
   display:flex;
   align-items:center;
   gap:4px;
-  padding:3px 8px;
+  padding:4px 8px;
   background:var(--bg-hover);
   border-radius:11px;
 }
