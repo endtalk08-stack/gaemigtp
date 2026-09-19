@@ -919,32 +919,11 @@ body.welcome-mode .input-wrapper { display: none; }
 .ai-widget-shell .widget-content > .section.widget-section-active { display:block; }
 .ai-widget-shell .widget-content .section-footer { margin-bottom:0; }
 
-/* Step: unify text size inside AI widgets */
-.ai-widget-shell,
-.ai-widget-shell .widget-content,
-.ai-widget-shell .section,
-.ai-widget-shell .section-title,
-.ai-widget-shell .section-time,
-.ai-widget-shell .report-intro,
-.ai-widget-shell .report-line,
-.ai-widget-shell .report-time,
-.ai-widget-shell .report-text,
-.ai-widget-shell .report-current,
-.ai-widget-shell .report-current-label,
-.ai-widget-shell .report-current-value,
-.ai-widget-shell .report-compare,
-.ai-widget-shell .report-compare-label,
-.ai-widget-shell .report-note,
-.ai-widget-shell .report-sources,
-.ai-widget-shell .report-sources-item {
-  font-size: 15px;
-}
-.ai-widget-shell .section-title,
-.ai-widget-shell .report-intro,
-.ai-widget-shell .report-current-value,
-.ai-widget-shell .report-text strong {
-  font-weight: 400;
-}
+/* Step correction: unify BODY text only. Keep widget/tab titles unchanged for mobile density. */
 .ai-widget-shell .widget-tab {
-  font-size: 15px;
+  font-size: 12px;
+}
+.ai-widget-shell .widget-content > .section > *:not(.section-header),
+.ai-widget-shell .widget-content > .section > *:not(.section-header) * {
+  font-size: 15px !important;
 }
