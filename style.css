@@ -812,8 +812,7 @@ body.welcome-mode .input-wrapper { display: none; }
 }
 
 .ai-widget-header {
-  height:35px;
-  min-height:35px;
+  min-height:38px;
   display:flex;
   align-items:center;
   gap:4px;
@@ -920,7 +919,8 @@ body.welcome-mode .input-wrapper { display: none; }
 .ai-widget-shell .widget-content > .section.widget-section-active { display:block; }
 .ai-widget-shell .widget-content .section-footer { margin-bottom:0; }
 
-/* Simple editable widget body: keep all demo copy at one consistent size. */
+
+/* Editable widget body copy: one consistent text size. */
 .ai-widget-shell .simple-line {
   font-size: 14px;
   font-weight: 400;
