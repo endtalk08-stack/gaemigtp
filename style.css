@@ -588,7 +588,9 @@ body.welcome-mode .input-wrapper { display: none; }
 }
 
 .ai-widget-header {
-  min-height:38px;
+  height:35px;
+  min-height:35px;
+  box-sizing:border-box;
   display:flex;
   align-items:center;
   gap:4px;
