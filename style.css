@@ -687,7 +687,7 @@ body.welcome-mode .input-wrapper { display: none; }
 
 .ai-widget-shell .widget-content {
   width:100%;
-  padding:0 16px 16px;
+  padding:8px 16px 16px;
 }
 .ai-widget-shell .widget-content > .section { display:none; margin-bottom:0; }
 .ai-widget-shell .widget-content > .section.widget-section-active { display:block; }
