@@ -3,11 +3,9 @@
 // ==========================================
 const stockData = {
   "삼성전자": {
-    why_time: "30초",
     why_title: "삼성전자 오늘 신났네 ㅎㅎ"
   },
   "SK하이닉스": {
-    why_time: "20초",
     why_title: "엔비디아 실적 발표 대기 중!"
   }
 };
@@ -185,7 +183,7 @@ function addMessage(role, content, isHTML = false) {
     msg.className = 'message';
     const avatar = document.createElement('div');
     avatar.className = 'msg-avatar ai';
-    avatar.textContent = 'AI';
+    avatar.textContent = 'G';
     const body = document.createElement('div');
     body.className = 'msg-body';
     if (isHTML) body.innerHTML = content;
@@ -294,7 +292,7 @@ function getDemoResponse(userText) {
     return `
       <div class="section" id="section-why">
         <div class="section-header">
-          <div class="section-title">왜 빨간불일까? <span class="section-time">· ${data.why_time}</span></div>
+          <div class="section-title">왜 빨간불일까?</div>
         </div>
         <div class="simple-line">${data.why_title}</div>
         <div class="simple-line">오늘 주가 움직임과 주요 재료를 확인해볼게.</div>
@@ -303,7 +301,7 @@ function getDemoResponse(userText) {
 
       <div class="section" id="section-big">
         <div class="section-header">
-          <div class="section-title">큰손들은 뭐하고 있어? <span class="section-time">· 20초</span></div>
+          <div class="section-title">큰손들은 뭐하고 있어?</div>
         </div>
         <div class="simple-line">외국인과 기관의 수급 흐름을 살펴볼게.</div>
         <div class="simple-line">오늘 누가 사고팔고 있는지 쉽게 정리해줄게.</div>
@@ -312,7 +310,7 @@ function getDemoResponse(userText) {
 
       <div class="section" id="section-cal">
         <div class="section-header">
-          <div class="section-title">다가오는 일정 <span class="section-time">· 15초</span></div>
+          <div class="section-title">다가오는 일정</div>
         </div>
         <div class="simple-line">앞으로 예정된 중요한 일정을 확인해볼게.</div>
         <div class="simple-line">주가에 영향을 줄 수 있는 일정만 골라볼게.</div>
@@ -321,7 +319,7 @@ function getDemoResponse(userText) {
 
       <div class="section" id="section-vol">
         <div class="section-header">
-          <div class="section-title">거래대금 폭발 <span class="section-time">· 10초</span></div>
+          <div class="section-title">거래대금 폭발</div>
         </div>
         <div class="simple-line">오늘 거래대금이 크게 움직인 종목을 볼게.</div>
         <div class="simple-line">평소보다 거래가 얼마나 늘었는지도 확인할게.</div>
@@ -475,6 +473,16 @@ async function sendMessage() {
   if (welcome && welcome.parentNode === chatContent) welcome.style.display = 'none';
 
   addMessage('user', text);
+
+  if (!chatContent.querySelector('.first-ai-message')) {
+    let currentStockName = '';
+    const lowerText = text.toLowerCase();
+    if (lowerText.includes('삼성') || lowerText.includes('삼전')) currentStockName = '삼성전자';
+    else if (lowerText.includes('하이닉스')) currentStockName = 'SK하이닉스';
+    const firstAiText = currentStockName ? `${currentStockName} 현재 +5.3% 상승중이야!` : '현재 +5.3% 상승중이야!';
+    const firstAi = addMessage('ai', firstAiText);
+    if (firstAi) firstAi.parentElement.classList.add('first-ai-message');
+  }
   if (input) {
     input.value = '';
     input.style.height = 'auto';
