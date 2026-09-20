@@ -567,7 +567,10 @@ async function sendMessage() {
         <span class="thinking-dot">●</span>
         <span class="thinking-dot">●</span>
         <span class="thinking-dot">●</span>
-        <span class="thinking-label">생각 중...</span>
+        <span class="thinking-dot">●</span>
+        <span class="thinking-dot">●</span>
+        <span class="thinking-dot">●</span>
+        <span class="thinking-label">생각 중</span>
       </div>
     </div>
   `;
