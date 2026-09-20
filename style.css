@@ -637,7 +637,7 @@ body.welcome-mode .input-wrapper { display: none; }
 .ai-widget-shell .simple-line:last-of-type { margin-bottom:0; }
 
 
-/* STEP 3.1: larger, purpose-built drag handle for widget reordering */
+/* STEP 3.2: square 3x3 drag handle, aligned to the body-text start */
 .ai-widget-shell .widget-content > .section.widget-draggable {
   position:relative;
 }
@@ -649,7 +649,7 @@ body.welcome-mode .input-wrapper { display: none; }
   height:35px;
   display:flex;
   align-items:center;
-  justify-content:flex-end;
+  justify-content:flex-start;
   color:var(--text-dim);
   font-size:0;
   line-height:1;
@@ -661,11 +661,11 @@ body.welcome-mode .input-wrapper { display: none; }
 }
 .ai-widget-shell .widget-drag-handle::before {
   content:"";
-  width:18px;
-  height:24px;
-  background-image:radial-gradient(circle, currentColor 2px, transparent 2.5px);
-  background-size:8px 8px;
-  background-position:1px 0;
+  width:12px;
+  height:12px;
+  background-image:radial-gradient(circle, currentColor 1.6px, transparent 1.9px);
+  background-size:6px 6px;
+  background-position:0 0;
   background-repeat:repeat;
 }
 .ai-widget-shell .section:hover > .widget-drag-handle,
