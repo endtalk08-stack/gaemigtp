@@ -643,9 +643,9 @@ body.welcome-mode .input-wrapper { display: none; }
 }
 .ai-widget-shell .widget-drag-handle {
   position:absolute;
-  left:0;
+  left:-16px;
   top:0;
-  width:40px;
+  width:32px;
   height:35px;
   display:flex;
   align-items:center;
