@@ -569,17 +569,17 @@ body.welcome-mode .input-wrapper { display: none; }
 }
 
 
-/* STEP 5: AI thinking state */
+/* STEP 5: AI thinking state — each analysis widget owns its own thinking row */
 .widget-thinking {
   display:flex;
   align-items:center;
   gap:8px;
-  min-height:35px;
+  min-height:24px;
+  margin:0 0 8px;
   padding:0;
+  color:var(--text-muted);
 }
 .widget-thinking-avatar {
-  width:auto;
-  height:auto;
   display:block;
   flex-shrink:0;
   color:var(--text);
@@ -610,6 +610,9 @@ body.welcome-mode .input-wrapper { display: none; }
   0%, 60%, 100% { transform:translateY(0); opacity:.35; }
   30% { transform:translateY(-2px); opacity:1; }
 }
+.widget-answer-hidden { display:none !important; }
+.widget-awaiting-answer .widget-thinking { display:flex; }
+.widget-answer-visible .widget-thinking { display:none; }
 
 /* STEP 1: independent analysis widgets */
 .widget-message { display:block; padding:20px 0; }

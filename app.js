@@ -560,10 +560,21 @@ async function sendMessage() {
   const body = document.createElement('div');
   body.className = 'msg-body ai-widget-shell';
   body.dataset.query = text;
-  body.innerHTML = `
-    <div class="widget-thinking" aria-live="polite">
-      <div class="widget-thinking-avatar">G</div>
-      <div class="widget-thinking-copy">
+  body.innerHTML = `<div class="widget-content">${getDemoResponse(text)}</div>`;
+  msg.appendChild(body);
+  if (chatContent) chatContent.appendChild(msg);
+  if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
+
+  const content = body.querySelector('.widget-content');
+  const sections = Array.from(content.querySelectorAll(':scope > .section'));
+
+  const makeThinking = () => {
+    const thinking = document.createElement('div');
+    thinking.className = 'widget-thinking';
+    thinking.setAttribute('aria-live', 'polite');
+    thinking.innerHTML = `
+      <span class="widget-thinking-avatar">G</span>
+      <span class="widget-thinking-copy">
         <span class="thinking-dot">●</span>
         <span class="thinking-dot">●</span>
         <span class="thinking-dot">●</span>
@@ -571,33 +582,41 @@ async function sendMessage() {
         <span class="thinking-dot">●</span>
         <span class="thinking-dot">●</span>
         <span class="thinking-label">생각 중</span>
-      </div>
-    </div>
-  `;
-  msg.appendChild(body);
-  if (chatContent) chatContent.appendChild(msg);
-  if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
-
-  const fullResponse = getDemoResponse(text);
-  await sleep(1200);
-
-  // STEP 1: render every analysis as an independent widget section.
-  body.innerHTML = `<div class="widget-content">${fullResponse}</div>`;
-
-  const content = body.querySelector('.widget-content');
-  const sections = Array.from(content.querySelectorAll(':scope > .section'));
+      </span>
+    `;
+    return thinking;
+  };
 
   sections.forEach((section, index) => {
     section.dataset.widgetKey = String(index);
-    // Each section is now its own visible analysis widget.
-    section.classList.add('widget-section-active');
+    section.classList.add('widget-section-active', 'widget-awaiting-answer');
+
+    const header = section.querySelector(':scope > .section-header');
+    const thinking = makeThinking();
+    if (header) header.insertAdjacentElement('afterend', thinking);
+    else section.prepend(thinking);
+
+    // Keep the actual answer hidden until this widget has finished thinking.
+    section.querySelectorAll(':scope > .simple-line, :scope > .widget-footer').forEach(el => {
+      el.classList.add('widget-answer-hidden');
+    });
   });
   setupWidgetDrag(body);
 
-  body.style.opacity = '0';
-  body.style.transition = 'opacity 0.3s';
-  await sleep(50);
-  body.style.opacity = '1';
+  // Each widget thinks and answers independently. The delay here is only for the
+  // current analysis step; a later step can stagger the actual widget appearance too.
+  for (const section of sections) {
+    await sleep(900);
+    section.classList.remove('widget-awaiting-answer');
+    section.classList.add('widget-answer-visible');
+    const thinking = section.querySelector(':scope > .widget-thinking');
+    if (thinking) thinking.remove();
+    section.querySelectorAll(':scope > .widget-answer-hidden').forEach(el => {
+      el.classList.remove('widget-answer-hidden');
+    });
+    if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
+    await sleep(180);
+  }
 
   isStreaming = false;
   if (sendBtn && input) sendBtn.disabled = input.value.trim() === '';
