@@ -429,6 +429,7 @@ function addWidgetSection(body, index, title) {
   section.dataset.widgetKey = String(index);
   section.classList.remove('widget-section-active');
   content.appendChild(section);
+  setupWidgetDrag(body);
 
   const tabs = body.querySelector('.widget-tabs');
   const tab = document.createElement('button');
@@ -463,6 +464,70 @@ function toggleWidgetAddMenu(btn) {
     };
     setTimeout(() => document.addEventListener('click', close), 0);
   }
+}
+
+function setupWidgetDrag(body) {
+  const content = body.querySelector('.widget-content');
+  if (!content) return;
+
+  const bind = (section) => {
+    if (section.dataset.dragReady === '1') return;
+    section.dataset.dragReady = '1';
+    section.classList.add('widget-draggable');
+
+    let handle = section.querySelector('.widget-drag-handle');
+    if (!handle) {
+      handle = document.createElement('span');
+      handle.className = 'widget-drag-handle';
+      handle.setAttribute('role', 'button');
+      handle.setAttribute('aria-label', '위젯 이동');
+      handle.setAttribute('title', '드래그해서 위젯 순서 변경');
+      handle.draggable = true;
+      handle.textContent = '⋮⋮';
+      section.prepend(handle);
+    }
+
+    handle.addEventListener('dragstart', (e) => {
+      body.dataset.draggingWidget = '1';
+      section.classList.add('widget-dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', section.dataset.widgetKey || 'widget');
+    });
+
+    handle.addEventListener('dragend', () => {
+      body.dataset.draggingWidget = '0';
+      section.classList.remove('widget-dragging');
+      content.querySelectorAll('.widget-drag-over').forEach(el => el.classList.remove('widget-drag-over'));
+    });
+
+    section.addEventListener('dragover', (e) => {
+      if (body.dataset.draggingWidget !== '1') return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const dragging = content.querySelector('.widget-dragging');
+      if (!dragging || dragging === section) return;
+      content.querySelectorAll('.widget-drag-over').forEach(el => el.classList.remove('widget-drag-over'));
+      section.classList.add('widget-drag-over');
+    });
+
+    section.addEventListener('dragleave', () => section.classList.remove('widget-drag-over'));
+
+    section.addEventListener('drop', (e) => {
+      if (body.dataset.draggingWidget !== '1') return;
+      e.preventDefault();
+      const dragging = content.querySelector('.widget-dragging');
+      if (!dragging || dragging === section) return;
+      const rect = section.getBoundingClientRect();
+      const insertBefore = e.clientY < rect.top + rect.height / 2;
+      if (insertBefore) content.insertBefore(dragging, section);
+      else content.insertBefore(dragging, section.nextSibling);
+      section.classList.remove('widget-drag-over');
+      content.querySelectorAll('.widget-dragging').forEach(el => el.classList.remove('widget-dragging'));
+      body.dataset.draggingWidget = '0';
+    });
+  };
+
+  content.querySelectorAll(':scope > .section').forEach(bind);
 }
 
 async function sendMessage() {
@@ -514,6 +579,7 @@ async function sendMessage() {
     // Each section is now its own visible analysis widget.
     section.classList.add('widget-section-active');
   });
+  setupWidgetDrag(body);
 
   body.style.opacity = '0';
   body.style.transition = 'opacity 0.3s';
