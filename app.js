@@ -573,7 +573,6 @@ async function sendMessage() {
     thinking.className = 'widget-thinking';
     thinking.setAttribute('aria-live', 'polite');
     thinking.innerHTML = `
-      <span class="widget-thinking-avatar">G</span>
       <span class="widget-thinking-copy">
         <span class="thinking-dot">●</span>
         <span class="thinking-dot">●</span>

@@ -573,18 +573,12 @@ body.welcome-mode .input-wrapper { display: none; }
 .widget-thinking {
   display:flex;
   align-items:center;
-  gap:8px;
   min-height:24px;
   margin:0 0 8px;
   padding:0;
   color:var(--text-muted);
-}
-.widget-thinking-avatar {
-  display:block;
-  flex-shrink:0;
-  color:var(--text);
   font-size:14px;
-  font-weight:600;
+  font-weight:400;
   line-height:1.7;
 }
 .widget-thinking-copy {
@@ -592,8 +586,9 @@ body.welcome-mode .input-wrapper { display: none; }
   align-items:center;
   gap:5px;
   color:var(--text-muted);
-  font-size:13px;
-  line-height:1;
+  font-size:14px;
+  font-weight:400;
+  line-height:1.7;
 }
 .thinking-dot {
   display:inline-block;
@@ -642,9 +637,8 @@ body.welcome-mode .input-wrapper { display: none; }
   margin-bottom:0;
 }
 
-/* The section title becomes the widget title box. */
+/* The section title stays right-aligned, but visually blends into the page. */
 .ai-widget-shell .section-header {
-  height:35px;
   min-height:35px;
   width:max-content;
   max-width:100%;
@@ -653,10 +647,10 @@ body.welcome-mode .input-wrapper { display: none; }
   align-items:center;
   justify-content:flex-end;
   margin:0 0 8px auto;
-  padding:8px 18px;
-  background:var(--bg-input);
-  border:1px solid var(--border);
-  border-radius:999px;
+  padding:8px 0;
+  background:var(--bg);
+  border:none;
+  border-radius:0;
 }
 .ai-widget-shell .section-title {
   font-size:12px;
