@@ -560,13 +560,23 @@ async function sendMessage() {
   const body = document.createElement('div');
   body.className = 'msg-body ai-widget-shell';
   body.dataset.query = text;
-  body.innerHTML = '<div class="widget-loading" style="display:inline-flex;gap:4px;padding:8px 0;"><span style="width:8px;height:8px;border-radius:50%;background:var(--text-dim);animation:bounce 1.4s infinite;"></span><span style="width:8px;height:8px;border-radius:50%;background:var(--text-dim);animation:bounce 1.4s infinite 0.2s;"></span><span style="width:8px;height:8px;border-radius:50%;background:var(--text-dim);animation:bounce 1.4s infinite 0.4s;"></span></div>';
+  body.innerHTML = `
+    <div class="widget-thinking" aria-live="polite">
+      <div class="widget-thinking-avatar">G</div>
+      <div class="widget-thinking-copy">
+        <span class="thinking-dot">●</span>
+        <span class="thinking-dot">●</span>
+        <span class="thinking-dot">●</span>
+        <span class="thinking-label">생각 중...</span>
+      </div>
+    </div>
+  `;
   msg.appendChild(body);
   if (chatContent) chatContent.appendChild(msg);
   if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
 
   const fullResponse = getDemoResponse(text);
-  await sleep(400);
+  await sleep(1200);
 
   // STEP 1: render every analysis as an independent widget section.
   body.innerHTML = `<div class="widget-content">${fullResponse}</div>`;
