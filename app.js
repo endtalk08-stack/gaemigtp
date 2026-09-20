@@ -503,50 +503,17 @@ async function sendMessage() {
   const fullResponse = getDemoResponse(text);
   await sleep(400);
 
-  // B4 step 2: turn the AI answer into a tabbed widget.
-  body.innerHTML = `
-    <div class="ai-widget-header">
-      <div class="widget-tabs" role="tablist"></div>
-      <button class="widget-add-btn" type="button" onclick="toggleWidgetAddMenu(this)" title="위젯 추가">+</button>
-      <div class="widget-add-menu" hidden></div>
-    </div>
-    <div class="widget-content">${fullResponse}</div>
-  `;
+  // STEP 1: render every analysis as an independent widget section.
+  body.innerHTML = `<div class="widget-content">${fullResponse}</div>`;
 
   const content = body.querySelector('.widget-content');
   const sections = Array.from(content.querySelectorAll(':scope > .section'));
-  const tabs = body.querySelector('.widget-tabs');
 
   sections.forEach((section, index) => {
     section.dataset.widgetKey = String(index);
-    const header = section.querySelector('.section-header');
-    const titleEl = header ? header.querySelector('.section-title') : null;
-    let title = titleEl ? titleEl.textContent.trim() : `분석 ${index + 1}`;
-
-    // The stock name belongs to the search chip above the widget, not the widget title.
-    title = title.replace(/^.*?\s*왜 빨간불일까\?/,'왜 빨간불일까?').replace(/^📅\s*/,'다가오는 일정');
-
-    const tab = document.createElement('button');
-    tab.type = 'button';
-    tab.className = 'widget-tab' + (index === 0 ? ' active' : '');
-    tab.setAttribute('role', 'tab');
-    tab.dataset.index = index;
-    tab.innerHTML = `<span class="widget-tab-label">${escapeHTML(title)}</span><span class="widget-tab-close" title="삭제">×</span>`;
-    tab.addEventListener('click', (e) => {
-      const currentIndex = Array.from(body.querySelectorAll('.widget-content > .section')).indexOf(section);
-      if (e.target.classList.contains('widget-tab-close')) {
-        removeWidgetTab(body, currentIndex);
-        return;
-      }
-      activateWidgetTab(body, currentIndex);
-    });
-    tabs.appendChild(tab);
-
-    if (header) header.remove();
-    section.classList.toggle('widget-section-active', index === 0);
+    // Each section is now its own visible analysis widget.
+    section.classList.add('widget-section-active');
   });
-
-  populateWidgetAddMenu(body);
 
   body.style.opacity = '0';
   body.style.transition = 'opacity 0.3s';
