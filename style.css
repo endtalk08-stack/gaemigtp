@@ -601,14 +601,17 @@ body.welcome-mode .input-wrapper { display: none; }
 .ai-widget-shell .section-header {
   height:35px;
   min-height:35px;
+  width:max-content;
+  max-width:100%;
   box-sizing:border-box;
   display:flex;
   align-items:center;
-  justify-content:flex-start;
-  margin:0 0 8px;
-  padding:4px 8px;
-  background:var(--bg-hover);
-  border-radius:11px;
+  justify-content:flex-end;
+  margin:0 0 8px auto;
+  padding:8px 18px;
+  background:var(--bg-input);
+  border:1px solid var(--border);
+  border-radius:999px;
 }
 .ai-widget-shell .section-title {
   font-size:12px;
