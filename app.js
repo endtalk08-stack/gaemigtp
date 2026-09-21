@@ -608,7 +608,10 @@ async function playStory(body, firstAiBody, introText, firstAiText) {
   await typeText(secondLine, introText, 16);
 
   if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
-  await sleep(260);
+
+  // 서두가 끝난 뒤 첫 질문을 바로 던지지 않는다.
+  // 사용자가 '왜 빨간불일까?'를 읽고 다음 장면으로 넘어갈 여유를 준다.
+  await sleep(1800);
 
   // 이제부터 분석 위젯이 하나씩 등장한다.
   const sections = Array.from(body.querySelectorAll('.widget-content > .section'));
