@@ -540,6 +540,7 @@ async function typeText(element, text, speed = 16) {
 async function playStorySection(section) {
   if (!section) return;
 
+  section.hidden = false;
   section.classList.add('story-section-visible');
   section.classList.remove('story-section-pending');
   if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -548,6 +549,7 @@ async function playStorySection(section) {
   for (const line of lines) {
     const text = line.textContent.trim();
     line.textContent = '';
+    line.style.visibility = 'visible';
     line.classList.remove('story-line-pending');
     await typeText(line, text, 16);
     await sleep(70);
@@ -555,6 +557,7 @@ async function playStorySection(section) {
 
   const footer = section.querySelector(':scope > .section-footer');
   if (footer) {
+    footer.style.visibility = 'visible';
     footer.classList.remove('story-footer-pending');
   }
 
@@ -562,7 +565,7 @@ async function playStorySection(section) {
 }
 
 async function playStory(body, firstAiBody, firstAiText) {
-  // Story Player v1:
+  // Story Player v1.1:
   // 1) 첫 AI 문장 타이핑
   // 2) 완료되면 첫 분석 위젯
   // 3) 위젯 하나가 끝나면 다음 위젯으로 이동
@@ -616,12 +619,17 @@ async function sendMessage() {
   sections.forEach((section, index) => {
     section.dataset.widgetKey = String(index);
     section.classList.add('story-section-pending');
-    section.classList.remove('widget-section-active');
+    section.classList.remove('story-section-visible', 'widget-section-active');
+    section.hidden = true;
     section.querySelectorAll(':scope > .simple-line').forEach(line => {
       line.classList.add('story-line-pending');
+      line.style.visibility = 'hidden';
     });
     const footer = section.querySelector(':scope > .section-footer');
-    if (footer) footer.classList.add('story-footer-pending');
+    if (footer) {
+      footer.classList.add('story-footer-pending');
+      footer.style.visibility = 'hidden';
+    }
   });
 
   setupWidgetDrag(body);
