@@ -180,15 +180,11 @@ function addMessage(role, content, isHTML = false) {
     if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
     return pill;
   } else {
-    msg.className = 'message';
-    const avatar = document.createElement('div');
-    avatar.className = 'msg-avatar ai';
-    avatar.textContent = 'G';
+    msg.className = 'message ai-msg-row';
     const body = document.createElement('div');
     body.className = 'msg-body';
     if (isHTML) body.innerHTML = content;
     else body.textContent = content;
-    msg.appendChild(avatar);
     msg.appendChild(body);
     chatContent.appendChild(msg);
     if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -530,6 +526,56 @@ function setupWidgetDrag(body) {
   content.querySelectorAll(':scope > .section').forEach(bind);
 }
 
+async function typeText(element, text, speed = 16) {
+  if (!element) return;
+  const value = String(text ?? '');
+  element.textContent = '';
+  for (let i = 0; i < value.length; i += 1) {
+    element.textContent += value[i];
+    if (chatContainer && i % 3 === 0) chatContainer.scrollTop = chatContainer.scrollHeight;
+    await sleep(speed);
+  }
+}
+
+async function playStorySection(section) {
+  if (!section) return;
+
+  section.classList.add('story-section-visible');
+  section.classList.remove('story-section-pending');
+  if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
+
+  const lines = Array.from(section.querySelectorAll(':scope > .simple-line'));
+  for (const line of lines) {
+    const text = line.textContent.trim();
+    line.textContent = '';
+    line.classList.remove('story-line-pending');
+    await typeText(line, text, 16);
+    await sleep(70);
+  }
+
+  const footer = section.querySelector(':scope > .section-footer');
+  if (footer) {
+    footer.classList.remove('story-footer-pending');
+  }
+
+  if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+async function playStory(body, firstAiBody, firstAiText) {
+  // Story Player v1:
+  // 1) 첫 AI 문장 타이핑
+  // 2) 완료되면 첫 분석 위젯
+  // 3) 위젯 하나가 끝나면 다음 위젯으로 이동
+  await typeText(firstAiBody, firstAiText, 16);
+  await sleep(100);
+
+  const sections = Array.from(body.querySelectorAll('.widget-content > .section'));
+  for (const section of sections) {
+    await playStorySection(section);
+    await sleep(120);
+  }
+}
+
 async function sendMessage() {
   const text = input ? input.value.trim() : '';
   if (!text || isStreaming) return;
@@ -539,21 +585,21 @@ async function sendMessage() {
 
   addMessage('user', text);
 
-  if (!chatContent.querySelector('.first-ai-message')) {
-    let currentStockName = '';
-    const lowerText = text.toLowerCase();
-    if (lowerText.includes('삼성') || lowerText.includes('삼전')) currentStockName = '삼성전자';
-    else if (lowerText.includes('하이닉스')) currentStockName = 'SK하이닉스';
-    const firstAiText = currentStockName ? `${currentStockName} 현재 +5.3% 상승중이야!` : '현재 +5.3% 상승중이야!';
-    const firstAi = addMessage('ai', firstAiText);
-    if (firstAi) firstAi.parentElement.classList.add('first-ai-message');
-  }
+  let currentStockName = '';
+  const lowerText = text.toLowerCase();
+  if (lowerText.includes('삼성') || lowerText.includes('삼전')) currentStockName = '삼성전자';
+  else if (lowerText.includes('하이닉스')) currentStockName = 'SK하이닉스';
+  const firstAiText = currentStockName ? `${currentStockName} 현재 +5.3% 상승중이야!` : '현재 +5.3% 상승중이야!';
+
   if (input) {
     input.value = '';
     input.style.height = 'auto';
   }
   if (sendBtn) sendBtn.disabled = true;
   isStreaming = true;
+
+  const firstAi = addMessage('ai', '');
+  if (firstAi) firstAi.parentElement.classList.add('first-ai-message');
 
   const msg = document.createElement('div');
   msg.className = 'message widget-message';
@@ -563,63 +609,28 @@ async function sendMessage() {
   body.innerHTML = `<div class="widget-content">${getDemoResponse(text)}</div>`;
   msg.appendChild(body);
   if (chatContent) chatContent.appendChild(msg);
-  if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
 
   const content = body.querySelector('.widget-content');
   const sections = Array.from(content.querySelectorAll(':scope > .section'));
 
-  const makeThinking = () => {
-    const thinking = document.createElement('div');
-    thinking.className = 'widget-thinking';
-    thinking.setAttribute('aria-live', 'polite');
-    thinking.innerHTML = `
-      <span class="widget-thinking-copy">
-        <span class="thinking-dot">●</span>
-        <span class="thinking-dot">●</span>
-        <span class="thinking-dot">●</span>
-        <span class="thinking-dot">●</span>
-        <span class="thinking-dot">●</span>
-        <span class="thinking-dot">●</span>
-        <span class="thinking-label">생각 중</span>
-      </span>
-    `;
-    return thinking;
-  };
-
   sections.forEach((section, index) => {
     section.dataset.widgetKey = String(index);
-    section.classList.add('widget-section-active', 'widget-awaiting-answer');
-
-    const header = section.querySelector(':scope > .section-header');
-    const thinking = makeThinking();
-    if (header) header.insertAdjacentElement('afterend', thinking);
-    else section.prepend(thinking);
-
-    // Keep the actual answer hidden until this widget has finished thinking.
-    section.querySelectorAll(':scope > .simple-line, :scope > .widget-footer').forEach(el => {
-      el.classList.add('widget-answer-hidden');
+    section.classList.add('story-section-pending');
+    section.classList.remove('widget-section-active');
+    section.querySelectorAll(':scope > .simple-line').forEach(line => {
+      line.classList.add('story-line-pending');
     });
+    const footer = section.querySelector(':scope > .section-footer');
+    if (footer) footer.classList.add('story-footer-pending');
   });
-  setupWidgetDrag(body);
 
-  // Each widget thinks and answers independently. The delay here is only for the
-  // current analysis step; a later step can stagger the actual widget appearance too.
-  for (const section of sections) {
-    await sleep(900);
-    section.classList.remove('widget-awaiting-answer');
-    section.classList.add('widget-answer-visible');
-    const thinking = section.querySelector(':scope > .widget-thinking');
-    if (thinking) thinking.remove();
-    section.querySelectorAll(':scope > .widget-answer-hidden').forEach(el => {
-      el.classList.remove('widget-answer-hidden');
-    });
-    if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
-    await sleep(180);
-  }
+  setupWidgetDrag(body);
+  await playStory(body, firstAi, firstAiText);
 
   isStreaming = false;
   if (sendBtn && input) sendBtn.disabled = input.value.trim() === '';
 }
+
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 const Panel = (() => {

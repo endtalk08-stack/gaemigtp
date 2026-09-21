@@ -339,6 +339,9 @@ html[data-theme="dark"] .theme-toggle .knob { transform: translateX(18px); }
   justify-content: flex-end;
   padding: 12px 0 20px;
 }
+.message.ai-msg-row {
+  padding-left: 0;
+}
 .user-pill {
   background: var(--bg-input);
   border: 1px solid var(--border);
@@ -608,6 +611,20 @@ body.welcome-mode .input-wrapper { display: none; }
 .widget-answer-hidden { display:none !important; }
 .widget-awaiting-answer .widget-thinking { display:flex; }
 .widget-answer-visible .widget-thinking { display:none; }
+
+/* STORY PLAYER v1: content is revealed in sequence, not all at once. */
+.ai-widget-shell .widget-content > .section.story-section-pending {
+  display:none;
+}
+.ai-widget-shell .widget-content > .section.story-section-visible {
+  display:block;
+}
+.ai-widget-shell .story-line-pending {
+  visibility:hidden;
+}
+.ai-widget-shell .story-footer-pending {
+  visibility:hidden;
+}
 
 /* STEP 1: independent analysis widgets */
 .widget-message { display:block; padding:20px 0; }
