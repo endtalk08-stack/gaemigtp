@@ -692,6 +692,23 @@ body.welcome-mode .input-wrapper { display: none; }
 }
 .ai-widget-shell .simple-line:last-of-type { margin-bottom:0; }
 
+/* STORY PLAYER v1.3: short opening before the first analysis widget */
+.story-intro {
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin:0 0 28px;
+}
+.story-intro-line {
+  font-size:15px;
+  font-weight:400;
+  line-height:1.7;
+  color:var(--text);
+  margin:0;
+}
+.story-intro-line-secondary {
+  color:var(--text-muted);
+}
 
 /* STEP 3.2: square 3x3 drag handle, aligned to the body-text start */
 .ai-widget-shell .widget-content > .section.widget-draggable {

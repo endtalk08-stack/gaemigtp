@@ -3,10 +3,10 @@
 // ==========================================
 const stockData = {
   "삼성전자": {
-    why_title: "삼성전자 오늘 신났네 ㅎㅎ"
+    intro_text: "삼성전자 오늘 신났네 ㅎㅎ"
   },
   "SK하이닉스": {
-    why_title: "엔비디아 실적 발표 대기 중!"
+    intro_text: "엔비디아 실적 발표 대기 중!"
   }
 };
 
@@ -290,7 +290,6 @@ function getDemoResponse(userText) {
         <div class="section-header">
           <div class="section-title">왜 빨간불일까?</div>
         </div>
-        <div class="simple-line">${data.why_title}</div>
         <div class="simple-line">오늘 주가 움직임과 주요 재료를 확인해볼게.</div>
         ${sectionFooter('section-why')}
       </div>
@@ -564,14 +563,54 @@ async function playStorySection(section) {
   if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-async function playStory(body, firstAiBody, firstAiText) {
-  // Story Player v1.1:
-  // 1) 첫 AI 문장 타이핑
-  // 2) 완료되면 첫 분석 위젯
-  // 3) 위젯 하나가 끝나면 다음 위젯으로 이동
-  await typeText(firstAiBody, firstAiText, 16);
-  await sleep(100);
+function createThinkingRow() {
+  const thinking = document.createElement('div');
+  thinking.className = 'widget-thinking story-thinking-test';
+  thinking.setAttribute('aria-live', 'polite');
+  thinking.innerHTML = `
+    <div class="widget-thinking-copy">
+      <span class="thinking-dot">●</span>
+      <span class="thinking-dot">●</span>
+      <span class="thinking-dot">●</span>
+      <span class="thinking-dot">●</span>
+      <span class="thinking-dot">●</span>
+      <span class="thinking-dot">●</span>
+      <span class="thinking-label">생각 중</span>
+    </div>`;
+  return thinking;
+}
 
+async function playStory(body, firstAiBody, introText, firstAiText) {
+  // Story Player v1.3:
+  // 종목명(사용자 입력) → 생각 중 10초 → 첫 상황 문장 2줄 → 첫 분석 위젯
+  // 서두가 끝난 뒤에야 '왜 빨간불일까?' 위젯이 시작된다.
+  const thinking = createThinkingRow();
+  firstAiBody.appendChild(thinking);
+
+  // 테스트 구간: 생각 중을 10초 유지한다.
+  await sleep(10000);
+
+  thinking.remove();
+
+  const intro = document.createElement('div');
+  intro.className = 'story-intro';
+  firstAiBody.appendChild(intro);
+
+  const firstLine = document.createElement('div');
+  firstLine.className = 'story-intro-line';
+  intro.appendChild(firstLine);
+  await typeText(firstLine, firstAiText, 16);
+  await sleep(90);
+
+  const secondLine = document.createElement('div');
+  secondLine.className = 'story-intro-line story-intro-line-secondary';
+  intro.appendChild(secondLine);
+  await typeText(secondLine, introText, 16);
+
+  if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
+  await sleep(260);
+
+  // 이제부터 분석 위젯이 하나씩 등장한다.
   const sections = Array.from(body.querySelectorAll('.widget-content > .section'));
   for (const section of sections) {
     await playStorySection(section);
@@ -592,6 +631,9 @@ async function sendMessage() {
   const lowerText = text.toLowerCase();
   if (lowerText.includes('삼성') || lowerText.includes('삼전')) currentStockName = '삼성전자';
   else if (lowerText.includes('하이닉스')) currentStockName = 'SK하이닉스';
+  const stockIntro = currentStockName && stockData[currentStockName]
+    ? stockData[currentStockName].intro_text
+    : '오늘 시장 움직임을 먼저 살펴볼게.';
   const firstAiText = currentStockName ? `${currentStockName} 현재 +5.3% 상승중이야!` : '현재 +5.3% 상승중이야!';
 
   if (input) {
@@ -633,7 +675,7 @@ async function sendMessage() {
   });
 
   setupWidgetDrag(body);
-  await playStory(body, firstAi, firstAiText);
+  await playStory(body, firstAi, stockIntro, firstAiText);
 
   isStreaming = false;
   if (sendBtn && input) sendBtn.disabled = input.value.trim() === '';
